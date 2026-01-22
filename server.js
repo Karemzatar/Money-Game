@@ -250,8 +250,12 @@ app.post("/earn/:id", (req, res) => {
 
     // Auto-level up based on balance
     // Level progression: Every $10,000 = 1 level (max 100)
+    const oldLevel = company.level || 0;
     const calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
-    if (calculatedLevel > (company.level || 0)) {
+    if (calculatedLevel > oldLevel) {
+      // Level up maintenance cost: $100 per level
+      const levelCost = calculatedLevel * 100;
+      company.balance -= levelCost;
       company.level = calculatedLevel;
     }
 
@@ -287,8 +291,24 @@ app.post("/api/transfer", (req, res) => {
     recipient.balance += transferAmount;
 
     // Auto-level up for both sender and recipient based on their balances
-    sender.level = Math.min(100, Math.floor(sender.balance / 10000));
-    recipient.level = Math.min(100, Math.floor(recipient.balance / 10000));
+    const senderOldLevel = sender.level || 0;
+    const recipientOldLevel = recipient.level || 0;
+    
+    const senderNewLevel = Math.min(100, Math.floor(sender.balance / 10000));
+    const recipientNewLevel = Math.min(100, Math.floor(recipient.balance / 10000));
+    
+    // Apply level maintenance cost if leveling up
+    if (senderNewLevel > senderOldLevel) {
+      const senderLevelCost = senderNewLevel * 100;
+      sender.balance -= senderLevelCost;
+    }
+    sender.level = senderNewLevel;
+    
+    if (recipientNewLevel > recipientOldLevel) {
+      const recipientLevelCost = recipientNewLevel * 100;
+      recipient.balance -= recipientLevelCost;
+    }
+    recipient.level = recipientNewLevel;
 
     updateCompanyStats(sender);
     updateCompanyStats(recipient);
