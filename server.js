@@ -248,14 +248,9 @@ app.post("/earn/:id", (req, res) => {
 
     company.balance += amount;
 
-    // Check level up? (Simple logic: every $1000 earned -> level up? Or manual? 
-    // Requirement says "Maximum company level: 0-100". Doesn't specify how to level up.
-    // Let's add a small chance or threshold. For now, let's say every click adds 0.01 XP and level = floor(XP).
-    // Or just simple: manual level up? 
-    // Let's implement auto-level up based on balance thresholds for simplicity, or just random small increment.
-    // Let's stay safe: The prompt implies level exists. Let's make it so you "level up" every $500 earned in this session? 
-    // No, better: Level = Balance / 10000 capped at 100.
-    const calculatedLevel = Math.min(100, Math.floor(company.balance / 5000));
+    // Auto-level up based on balance
+    // Level progression: Every $10,000 = 1 level (max 100)
+    const calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
     if (calculatedLevel > (company.level || 0)) {
       company.level = calculatedLevel;
     }
@@ -290,6 +285,10 @@ app.post("/api/transfer", (req, res) => {
 
     sender.balance -= transferAmount;
     recipient.balance += transferAmount;
+
+    // Auto-level up for both sender and recipient based on their balances
+    sender.level = Math.min(100, Math.floor(sender.balance / 10000));
+    recipient.level = Math.min(100, Math.floor(recipient.balance / 10000));
 
     updateCompanyStats(sender);
     updateCompanyStats(recipient);
