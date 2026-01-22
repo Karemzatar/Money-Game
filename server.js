@@ -64,8 +64,20 @@ function calculateSharePrice(company) {
   return parseFloat(price.toFixed(2));
 }
 
+return parseFloat(price.toFixed(2));
+}
+
+function determineVisaType(balance) {
+  if (balance >= 5000000) return "Visa Infinite";
+  if (balance >= 1000000) return "Visa Signature";
+  if (balance >= 500000) return "Visa Platinum";
+  if (balance >= 100000) return "Visa Gold";
+  return "Visa Classic";
+}
+
 function updateCompanyStats(company) {
   company.sharePrice = calculateSharePrice(company);
+  company.visaType = determineVisaType(company.balance);
 }
 
 // ===== Routes =====
@@ -95,7 +107,10 @@ app.get("/api/companies", (req, res) => {
     locked: c.locked,
     level: c.level || 0,
     sharePrice: c.sharePrice || 0,
-    visaType: c.visaType || 'Basic'
+    level: c.level || 0,
+    sharePrice: c.sharePrice || 0,
+    visaType: determineVisaType(c.balance),
+    imageUrl: c.imageUrl
   }));
   res.json(safeData);
 });
@@ -125,7 +140,8 @@ app.get("/data/:id", (req, res) => {
     sharePrice: company.sharePrice || 0,
     partners: company.partners || [],
     partnershipRequests: company.partnershipRequests || [],
-    visaType: company.visaType || 'Basic',
+    visaType: determineVisaType(company.balance),
+    imageUrl: company.imageUrl,
     createdAt: company.createdAt
   });
 });
@@ -133,50 +149,55 @@ app.get("/data/:id", (req, res) => {
 // POST /api/create (Create new company)
 app.post("/api/create", (req, res) => {
   try {
-    const { company, manager, visaType } = req.body;
-    if (!company || !manager) return res.status(400).json({ error: "Missing fields" });
+    try {
+      const { company, manager, imageUrl } = req.body;
+      if (!company || !manager) return res.status(400).json({ error: "Missing fields" });
 
-    const companies = getCompanies();
+      const companies = getCompanies();
 
-    // Generate random 16-digit card number
-    const cardNumber = Array.from({ length: 16 }, () =>
-      Math.floor(Math.random() * 10)
-    ).join("");
+      // Generate random 16-digit card number
+      const cardNumber = Array.from({ length: 16 }, () =>
+        Math.floor(Math.random() * 10)
+      ).join("");
 
-    // Generate random 5-digit PIN
-    const pin = Math.floor(10000 + Math.random() * 90000).toString();
+      // Generate random 5-digit PIN
+      const pin = Math.floor(10000 + Math.random() * 90000).toString();
 
-    const newCompany = {
-      id: Date.now().toString(),
-      company,
-      manager,
-      balance: 0,
-      cardNumber,
-      createdAt: new Date().toISOString(),
-      pin: pin,
-      locked: false,
-      healthScore: 100,
-      favorites: [],
-      trusted: false,
-      level: 0,
-      assets: 0,
-      sharePrice: 1.00,
-      partners: [],
-      partnershipRequests: [],
-      visaType: visaType || 'Visa Classic'
-    };
+      const newCompany = {
+        id: Date.now().toString(),
+        company,
+        manager,
+        balance: 0,
+        cardNumber,
+        createdAt: new Date().toISOString(),
+        pin: pin,
+        locked: false,
+        healthScore: 100,
+        favorites: [],
+        trusted: false,
+        level: 0,
+        assets: 0,
+        sharePrice: 1.00,
+        partners: [],
+        partnershipRequests: [],
+        sharePrice: 1.00,
+        partners: [],
+        partnershipRequests: [],
+        visaType: determineVisaType(0),
+        imageUrl: req.body.imageUrl || null
+      };
 
-    companies.push(newCompany);
-    saveCompanies(companies);
+      companies.push(newCompany);
+      saveCompanies(companies);
 
-    logAction(newCompany.id, "company_created", { company, manager });
+      logAction(newCompany.id, "company_created", { company, manager });
 
-    res.json({ success: true, id: newCompany.id, pin: pin });
-  } catch (err) {
-    console.error("Error creating company:", err);
-    res.status(500).json({ error: "Failed to create company" });
-  }
-});
+      res.json({ success: true, id: newCompany.id, pin: pin });
+    } catch (err) {
+      console.error("Error creating company:", err);
+      res.status(500).json({ error: "Failed to create company" });
+    }
+  });
 
 // POST /api/login
 app.post("/api/login", async (req, res) => {

@@ -59,8 +59,8 @@ function displayCompanies() {
 
 function selectCompany(id) {
   sessionStorage.setItem("companyId", id);
-  // Redirect to secure wallet login where PIN is required
-  window.location.href = "paybal-wallet.html";
+  // Redirect to home page
+  window.location.href = "home.html";
 }
 
 function viewCompanyDetails(id) {
@@ -98,12 +98,12 @@ function login(event) {
     return;
   }
 
-  const visaType = document.getElementById("visaType").value;
+  const imageUrl = document.getElementById("imageUrl").value;
 
   fetch("/api/create", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ company, manager, visaType })
+    body: JSON.stringify({ company, manager, imageUrl })
   })
     .then(res => res.json())
     .then(data => {
@@ -111,10 +111,9 @@ function login(event) {
         errorDiv.innerText = data.error;
       } else if (data.id) {
         sessionStorage.setItem("companyId", data.id);
-        sessionStorage.setItem("companyId", data.id);
         // Alert user about their new PIN
         alert(`Company created! Your PIN is: ${data.pin}\n\nPlease save this PIN as it is required to login.`);
-        window.location.href = "paybal-wallet.html";
+        window.location.href = "home.html";
       }
     })
     .catch(err => {

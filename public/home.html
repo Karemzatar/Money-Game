@@ -3,44 +3,539 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Money Game - Home</title>
-  <link rel="stylesheet" href="css/style.css">
   <style>
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .search-box {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      margin-bottom: 20px;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
     }
 
-    .icon-btn {
-      font-size: 1.5rem;
-      background: none;
-      border: none;
-      cursor: pointer;
+    /* Navigation Bar */
+    .navbar {
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-logo {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
     }
 
     .nav-icons {
       display: flex;
-      gap: 15px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      font-size: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s ease;
+      padding: 5px;
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #ff4757;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 20px;
+      align-items: center;
+      margin: 0;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: #666;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .nav-menu a:hover {
+      color: #667eea;
+    }
+
+    .logout-btn {
+      background: #ff4757;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #ff3838;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* Search Box */
+    .search-box {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 30px;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: white;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    #searchResults {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-result-item {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+    }
+
+    .search-result-item:hover {
+      background: #f5f7ff;
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Company Profile Card */
+    .profile-section {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .profile-image {
+      text-align: center;
+    }
+
+    .company-logo {
+      width: 150px;
+      height: 150px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-bottom: 20px;
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+
+    .profile-info h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .profile-info p {
+      color: #666;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    /* Visa Card Container */
+    .visa-card-container {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .visa-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 30px;
+      color: white;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .visa-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-logo {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+
+    .card-number {
+      font-size: 20px;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .card-holder small {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .card-holder h3 {
+      font-size: 18px;
+      margin-top: 4px;
+    }
+
+    .card-brand {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .card-info {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .card-info p {
+      margin-bottom: 12px;
+      color: #333;
+      font-size: 15px;
+    }
+
+    .card-info strong {
+      color: #667eea;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin: 10px 0;
+    }
+
+    .stat-card .stat-label {
+      color: #666;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Action Grid */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #f0f0ff;
+      transform: translateY(-3px);
+    }
+
+    .btn-earn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .btn-earn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(245, 87, 108, 0.4);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .profile-section,
+      .visa-card-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .nav-menu {
+        gap: 12px;
+      }
+
+      .nav-menu a {
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      .profile-section,
+      .visa-card-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .nav-container {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .nav-menu {
+        order: 3;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .nav-menu a {
+        font-size: 12px;
+      }
+
+      .action-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .btn {
+        padding: 14px 20px;
+        font-size: 14px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+
+      .company-logo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .profile-info h2 {
+        font-size: 22px;
+      }
+
+      .visa-card {
+        padding: 20px;
+        min-height: 180px;
+      }
+
+      .card-number {
+        font-size: 16px;
+      }
+
+      .card-info p {
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px 12px;
+      }
+
+      .nav-logo {
+        font-size: 18px;
+      }
+
+      .nav-icons {
+        gap: 5px;
+      }
+
+      .icon-btn {
+        font-size: 20px;
+      }
+
+      .profile-section,
+      .visa-card-container {
+        padding: 15px;
+      }
+
+      .profile-info h2 {
+        font-size: 20px;
+      }
+
+      .profile-info p {
+        font-size: 13px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .stat-card .stat-value {
+        font-size: 24px;
+      }
+
+      .visa-card {
+        padding: 15px;
+        min-height: 160px;
+      }
+
+      .card-logo {
+        font-size: 32px;
+        margin-bottom: 15px;
+      }
+
+      .card-number {
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+      }
+
+      .action-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .btn {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+
+      .search-box {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 
-<body class="home-page">
+<body>
+  <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-logo">💰 Money Game</div>
       <div class="nav-icons">
-        <button class="icon-btn" onclick="toggleFreeze()" title="Freeze Account (Netfactions)">❄️</button>
+        <button class="icon-btn" id="notificationBtn" title="Notifications">
+          🔔
+          <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+        </button>
       </div>
       <ul class="nav-menu">
         <li><a href="home.html" class="active">Home</a></li>
@@ -50,92 +545,199 @@
     </div>
   </nav>
 
+  <!-- Main Container -->
   <div class="container">
-
-    <!-- Search -->
+    <!-- Search Box -->
     <input type="text" id="companySearch" class="search-box" placeholder="🔍 Search companies..."
       onkeyup="searchCompanies()">
-    <div id="searchResults"
-      style="display:none; background:white; padding:10px; border-radius:8px; margin-bottom:20px;"></div>
+    <div id="searchResults" style="display:none;"></div>
 
-    <!-- Visa Card -->
+    <!-- Profile Section -->
+    <div class="profile-section">
+      <div class="profile-image">
+        <img id="companyImage" class="company-logo" src="https://via.placeholder.com/200" alt="Company Logo">
+        <h3 id="companyNameSmall" style="color: #333; margin-top: 15px;"></h3>
+      </div>
+      <div class="profile-info">
+        <h2 id="companyName">Company Name</h2>
+        <p><strong>Manager:</strong> <span id="managerName">-</span></p>
+        <p><strong>Company ID:</strong> <span id="companyId" style="font-family: monospace;">-</span></p>
+        <p><strong>Account Created:</strong> <span id="createdDate">-</span></p>
+        <p><strong>Account Age:</strong> <span id="accountAge">-</span></p>
+      </div>
+    </div>
+
+    <!-- Visa Card Section -->
     <div class="visa-card-container">
-      <div class="visa-card" onclick="location.href='company-details.html?id='+companyId">
-        <div class="card-background"></div>
+      <div class="visa-card" onclick="location.href='paybal-wallet.html'">
         <div class="card-logo">💳</div>
-        <div class="card-content">
-          <div class="card-number" id="cardNumber">0000 0000 0000 0000</div>
-          <div class="card-bottom">
-            <div class="card-holder"><small>CARDHOLDER</small>
-              <h3 id="companyName"></h3>
-            </div>
-            <div class="card-brand">VISA <span id="visaTypeDisplay">Classic</span></div>
+        <div class="card-number" id="cardNumber">0000 0000 0000 0000</div>
+        <div class="card-bottom">
+          <div class="card-holder">
+            <small>CARDHOLDER</small>
+            <h3 id="visaCompanyName">Company</h3>
           </div>
+          <div class="card-brand">VISA <span id="visaTypeDisplay">Classic</span></div>
         </div>
       </div>
       <div class="card-info">
-        <p><strong>Balance:</strong> <span id="balance">$0.00</span></p>
+        <p><strong>Balance:</strong> <span id="balance" style="color: #4CAF50; font-size: 18px; font-weight: bold;">$0.00</span></p>
+        <p><strong>Visa Tier:</strong> <span id="visaType">Visa Classic</span></p>
         <p><strong>Level:</strong> <span id="companyLevel">0</span></p>
         <p><strong>Share Price:</strong> <span id="sharePrice">$0.00</span></p>
+        <p><strong>Health Score:</strong> <span id="healthScore">100</span>%</p>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="action-grid">
-      <button class="btn btn-earn" onclick="earn()">💸 Make Money (+<span id="earnRate">$2.50</span>)</button>
-      <button class="btn btn-primary" onclick="location.href='company-details.html?id='+companyId">👤 My
-        Profile</button>
-      <button class="btn btn-secondary" onclick="location.href='partners.html'">🤝 Partners</button>
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Balance</div>
+        <div class="stat-value" id="totalBalance">$0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Company Level</div>
+        <div class="stat-value" id="levelDisplay">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Partners</div>
+        <div class="stat-value" id="partnersCount">0</div>
+      </div>
     </div>
 
+    <!-- Action Grid -->
+    <div class="action-grid">
+      <button class="btn btn-earn" onclick="earn()">
+        💸 Make Money <br>
+        <small>(+<span id="earnRate">$2.50</span>)</small>
+      </button>
+      <button class="btn btn-primary" onclick="location.href='company-details.html?id='+companyId">
+        👤 My Profile
+      </button>
+      <button class="btn btn-secondary" onclick="location.href='partners.html'">
+        🤝 Partners
+      </button>
+      <button class="btn btn-primary" onclick="location.href='paybal-wallet.html'">
+        💰 Open Wallet
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Panel (Optional) -->
+  <div id="notificationPanel" style="display: none; position: fixed; right: 20px; top: 70px; background: white; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 320px; max-height: 400px; overflow-y: auto; z-index: 99;">
+    <div style="padding: 20px; border-bottom: 1px solid #eee;">
+      <h3 style="margin: 0; font-size: 18px; color: #333;">Notifications</h3>
+    </div>
+    <div id="notificationList" style="padding: 10px;">
+      <!-- Notifications will be added here -->
+    </div>
   </div>
 
   <script src="js/home.js"></script>
   <script>
-    // Inline search logic for speed
+    let companyId = sessionStorage.getItem("companyId");
+    if (!companyId) {
+      window.location.href = "/";
+    }
+
+    // Inline search logic
     async function searchCompanies() {
       const q = document.getElementById('companySearch').value;
       const resDiv = document.getElementById('searchResults');
-      if (q.length < 2) { resDiv.style.display = 'none'; return; }
+      if (q.length < 2) {
+        resDiv.style.display = 'none';
+        return;
+      }
 
-      const res = await fetch(`/api/companies?q=${q}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`/api/companies?q=${q}`);
+        const data = await res.json();
 
-      resDiv.innerHTML = '';
-      resDiv.style.display = 'block';
-      if (data.length === 0) resDiv.innerHTML = '<p>No results found</p>';
+        resDiv.innerHTML = '';
+        resDiv.style.display = 'block';
+        if (data.length === 0) {
+          resDiv.innerHTML = '<p style="color: #999;">No results found</p>';
+          return;
+        }
 
-      data.forEach(c => {
-        const div = document.createElement('div');
-        div.style.padding = '10px';
-        div.style.borderBottom = '1px solid #eee';
-        div.style.cursor = 'pointer';
-        div.innerHTML = `<b>${c.company}</b> - Level ${c.level}`;
-        div.onclick = () => window.location.href = `company-details.html?id=${c.id}`;
-        resDiv.appendChild(div);
-      });
+        data.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'search-result-item';
+          div.innerHTML = `<b>${c.company}</b><br><small>Level ${c.level || 0} • $${(c.balance || 0).toLocaleString("en-US", {minimumFractionDigits: 2})}</small>`;
+          div.onclick = () => window.location.href = `company-details.html?id=${c.id}`;
+          resDiv.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Search error:", err);
+      }
     }
 
-    async function toggleFreeze() {
-      if (!confirm("Security: Do you want to FREEZE/UNFREEZE your account?")) return;
-      // Get current status first
-      const currentLocked = await checkLockStatus();
-      await fetch('/api/account/freeze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId, locked: !currentLocked })
-      });
-      alert("Account status updated.");
-      location.reload();
+    // Notification button toggle
+    document.getElementById('notificationBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notificationPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Close notification panel when clicking outside
+    document.addEventListener('click', function(event) {
+      const panel = document.getElementById('notificationPanel');
+      const btn = document.getElementById('notificationBtn');
+      if (!panel.contains(event.target) && !btn.contains(event.target)) {
+        panel.style.display = 'none';
+      }
+    });
+
+    function logout() {
+      sessionStorage.removeItem("companyId");
+      window.location.href = "/";
     }
 
-    // Helper to check lock status locally or refetch
-    // For now, assuming home.js loads valid data, we can check a global var or refetch
-    async function checkLockStatus() {
-      const res = await fetch(`/data/${companyId}`);
-      const d = await res.json();
-      return d.locked;
+    // Load notifications count
+    async function loadNotifications() {
+      try {
+        const res = await fetch(`/data/${companyId}`);
+        const data = await res.json();
+        
+        let notificationCount = 0;
+        let notifications = [];
+
+        // Check for partnership requests
+        if (data.partnershipRequests && data.partnershipRequests.length > 0) {
+          notificationCount += data.partnershipRequests.length;
+          notifications.push(`${data.partnershipRequests.length} partnership request(s)`);
+        }
+
+        // Check if account is frozen
+        if (data.locked) {
+          notificationCount++;
+          notifications.push('Account is frozen');
+        }
+
+        // Show badge if there are notifications
+        const badge = document.getElementById('notificationBadge');
+        if (notificationCount > 0) {
+          badge.innerText = notificationCount;
+          badge.style.display = 'flex';
+        } else {
+          badge.style.display = 'none';
+        }
+
+        // Update notification list
+        const notifList = document.getElementById('notificationList');
+        if (notifications.length > 0) {
+          notifList.innerHTML = notifications.map(n => `<div style="padding: 10px; border-bottom: 1px solid #eee;"><span>📢</span> ${n}</div>`).join('');
+        } else {
+          notifList.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No notifications</div>';
+        }
+      } catch (err) {
+        console.error("Notification error:", err);
+      }
     }
+
+    // Initial load
+    loadNotifications();
+    // Refresh notifications every 30 seconds
+    setInterval(loadNotifications, 30000);
   </script>
 </body>
 

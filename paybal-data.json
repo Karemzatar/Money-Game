@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "1769087838390",
+    "company": "Local",
+    "manager": "Local",
+    "balance": 1500000,
+    "cardNumber": "2674836883271392",
+    "imageUrl": "https://via.placeholder.com/200?text=Local",
+    "createdAt": "2026-01-22T13:17:18.390Z"
+  },
+  {
+    "id": "1769089124608",
+    "company": "Wailand",
+    "manager": "Beatrix",
+    "balance": 6500000,
+    "cardNumber": "1486612316540942",
+    "imageUrl": "https://via.placeholder.com/200?text=Wailand",
+    "createdAt": "2026-01-22T13:38:44.608Z"
+  }
+]
