@@ -1,0 +1,7 @@
+# Discord bot sensitive files
+index.js
+config.json
+
+# Node
+node_modules/
+.env

@@ -1,46 +1,65 @@
 [
   {
-    "id": "1769087838390",
-    "company": "Local",
-    "manager": "Local",
-    "balance": 1500000,
-    "cardNumber": "2674836883271392",
-    "imageUrl": "https://via.placeholder.com/200?text=Local",
-    "createdAt": "2026-01-22T13:17:18.390Z",
-    "pin": "$2b$10$BWMVYjFUwocvkrOYnZkttOITjmXY4w07Kv9ViNZqdqxWwQKaFVetm",
+    "id": "1769099073578",
+    "company": "Wailand",
+    "manager": ".justme1.",
+    "balance": 395.625,
+    "cardNumber": "2712384454362768",
+    "createdAt": "2026-01-22T16:24:33.578Z",
+    "pin": "57888",
     "locked": false,
-    "healthScore": 70,
+    "healthScore": 100,
     "favorites": [],
     "trusted": false,
-    "level": 5,
+    "level": 0,
     "assets": 0,
     "sharePrice": 1.25,
     "partners": [
-      "1769089124608"
+      "1769100474860"
     ],
     "partnershipRequests": [],
-    "visaType": "Visa Gold"
+    "visaType": "Visa Classic"
   },
   {
-    "id": "1769089124608",
-    "company": "Wailand",
-    "manager": "Beatrix",
-    "balance": 6500000,
-    "cardNumber": "1486612316540942",
-    "imageUrl": "https://via.placeholder.com/200?text=Wailand",
-    "createdAt": "2026-01-22T13:38:44.608Z",
-    "pin": "37888",
+    "id": "1769100474860",
+    "company": "Local",
+    "manager": "deww",
+    "balance": 107.5,
+    "cardNumber": "3258624844710338",
+    "createdAt": "2026-01-22T16:47:54.860Z",
+    "pin": "95349",
     "locked": false,
-    "healthScore": 75,
+    "healthScore": 100,
     "favorites": [],
-    "trusted"8,
+    "trusted": false,
+    "level": 0,
     "assets": 0,
     "sharePrice": 1.25,
     "partners": [
-      "1769087838390"
+      "1769099073578"
     ],
     "partnershipRequests": [],
-    "visaType": "Visa Platinumts": [],
-    "visaType": "Basic"
+    "visaType": "Visa Classic",
+    "imageUrl": null
+  },
+  {
+    "id": "1769100673453",
+    "company": "deew",
+    "manager": "deww",
+    "balance": 137.5,
+    "cardNumber": "2474016441520161",
+    "createdAt": "2026-01-22T16:51:13.453Z",
+    "pin": "16639",
+    "locked": false,
+    "healthScore": 100,
+    "favorites": [],
+    "trusted": false,
+    "level": 0,
+    "assets": 0,
+    "sharePrice": 1,
+    "partners": [],
+    "partnershipRequests": [],
+    "visaType": "Visa Classic",
+    "imageUrl": null
   }
 ]

@@ -4,822 +4,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PayPal Wallet - Money Game</title>
-  <style>
-    /* ===== Reset & Base Styles ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      font-size: 16px;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #1a1a1a;
-    }
-
-    /* Navigation Bar */
-    .navbar {
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      margin-bottom: 30px;
-    }
-
-    .nav-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-    }
-
-    .nav-logo {
-      font-size: 20px;
-      font-weight: 700;
-      color: #003087;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-menu {
-      display: flex;
-      list-style: none;
-      gap: 30px;
-      align-items: center;
-    }
-
-    .nav-menu a {
-      text-decoration: none;
-      color: #6c757d;
-      font-weight: 500;
-      font-size: 14px;
-      transition: color 0.3s ease;
-    }
-
-    .nav-menu a:hover,
-    .nav-menu a.active {
-      color: #003087;
-    }
-
-    .logout-btn {
-      background: #f5f7fa;
-      color: #dc3545;
-      padding: 8px 16px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .logout-btn:hover {
-      background: #e9ecef;
-    }
-
-    /* Main Container */
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    /* Login Section */
-    .login-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 60vh;
-    }
-
-    .login-card {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 450px;
-      animation: slideIn 0.4s ease-out;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .login-card h2 {
-      color: #003087;
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .login-card p {
-      color: #6c757d;
-      margin-bottom: 30px;
-      font-size: 14px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #1a1a1a;
-      font-size: 14px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #d3d8de;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #003087;
-      box-shadow: 0 0 0 3px rgba(0, 48, 135, 0.1);
-    }
-
-    .btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-block;
-      text-decoration: none;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: #003087;
-      color: #ffffff;
-      width: 100%;
-    }
-
-    .btn-primary:hover {
-      background: #00235d;
-      box-shadow: 0 4px 12px rgba(0, 48, 135, 0.3);
-    }
-
-    .btn-transfer {
-      background: #003087;
-      color: #ffffff;
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-    }
-
-    .btn-transfer:hover {
-      background: #00235d;
-      box-shadow: 0 4px 12px rgba(0, 48, 135, 0.3);
-    }
-
-    .error-message {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 12px 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      border-left: 4px solid #f5c6cb;
-      font-size: 13px;
-      display: none;
-    }
-
-    .success-message {
-      background: #d4edda;
-      color: #155724;
-      padding: 12px 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      border-left: 4px solid #c3e6cb;
-      font-size: 13px;
-      display: none;
-    }
-
-    /* Wallet Dashboard */
-    .wallet-section {
-      display: none;
-    }
-
-    .wallet-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .wallet-header h2 {
-      color: #003087;
-      font-size: 28px;
-    }
-
-    .logout-link {
-      background: #f5f7fa;
-      color: #dc3545;
-      padding: 10px 20px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-      transition: background 0.3s ease;
-    }
-
-    .logout-link:hover {
-      background: #e9ecef;
-    }
-
-    /* Wallet Card */
-    .wallet-card {
-      background: linear-gradient(135deg, #003087 0%, #1a5490 100%);
-      color: #ffffff;
-      border-radius: 12px;
-      padding: 30px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 30px rgba(0, 48, 135, 0.2);
-      min-height: 280px;
-      position: relative;
-      overflow: hidden;
-      animation: slideIn 0.5s ease-out;
-    }
-
-    .wallet-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-
-    .wallet-card-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .wallet-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 40px;
-    }
-
-    .wallet-card-logo {
-      font-size: 32px;
-    }
-
-    .wallet-card-type {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .wallet-card-number {
-      font-size: 18px;
-      letter-spacing: 2px;
-      font-family: 'Courier New', monospace;
-      margin-bottom: 40px;
-      word-spacing: 4px;
-    }
-
-    .wallet-card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-top: auto;
-    }
-
-    .wallet-cardholder {
-      flex: 1;
-    }
-
-    .wallet-cardholder label {
-      display: block;
-      font-size: 11px;
-      opacity: 0.8;
-      margin-bottom: 5px;
-      letter-spacing: 1px;
-    }
-
-    .wallet-cardholder h3 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .wallet-health-score {
-      position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-    }
-
-    .health-badge {
-      background: rgba(40, 167, 69, 0.2);
-      border: 1px solid rgba(40, 167, 69, 0.5);
-      color: #90ee90;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .wallet-manager {
-      flex: 1;
-    }
-
-    .wallet-manager label {
-      display: block;
-      font-size: 11px;
-      opacity: 0.8;
-      margin-bottom: 5px;
-      letter-spacing: 1px;
-    }
-
-    .wallet-manager p {
-      font-size: 14px;
-    }
-
-    /* Balance Section */
-    .balance-section {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .balance-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 0;
-    }
-
-    .balance-label {
-      color: #6c757d;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .balance-value {
-      color: #003087;
-      font-weight: 700;
-      font-size: 18px;
-    }
-
-    /* Transfer Section */
-    .transfer-section {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 30px;
-    }
-
-    .transfer-section h3 {
-      color: #003087;
-      font-size: 20px;
-      margin-bottom: 25px;
-    }
-
-    .transfer-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .transfer-form .form-group {
-      grid-column: span 2;
-    }
-
-    .transfer-form .form-group.recipient-group {
-      grid-column: span 1;
-    }
-
-    .transfer-form .form-group.amount-group {
-      grid-column: span 1;
-    }
-
-    .transfer-form .form-group.submit-group {
-      grid-column: span 2;
-    }
-
-    /* Trusted Badge */
-    .trusted-badge {
-      display: inline-block;
-      margin-left: 8px;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .wallet-header {
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .transfer-form {
-        grid-template-columns: 1fr;
-      }
-
-      .transfer-form .form-group {
-        grid-column: span 1;
-      }
-    }
-
-    /* Modal Styles */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal h3 {
-      margin-bottom: 15px;
-      color: #003087;
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .btn-cancel {
-      background: #e9ecef;
-      color: #1a1a1a;
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-  </style>
+  <title>Wallet - Money Game</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-container">
-      <div class="nav-logo">💰 Money Game</div>
+      <a href="home.html" class="nav-logo">💰 Money Game</a>
       <ul class="nav-menu">
         <li><a href="home.html">Home</a></li>
         <li><a href="paybal-wallet.html" class="active">Wallet</a></li>
-        <li><a href="shares.html">Shares</a></li>
-        <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
+        <li><a href="javascript:handleLogout()" class="logout-btn">Logout</a></li>
       </ul>
     </div>
   </nav>
 
-  <!-- Main Container -->
   <div class="container">
+
     <!-- Login Section -->
-    <div id="loginSection" class="login-section">
-      <div class="login-card">
-        <h2>💳 PayPal Wallet</h2>
-        <p>Sign in to your wallet account</p>
+    <div id="loginSection" class="login-box" style="margin-top: 50px;">
+      <h2>💳 Secure Wallet Access</h2>
+      <p style="margin-bottom:20px; color:#666;">Enter your PIN to access funds.</p>
 
-        <div id="errorMessage" class="error-message"></div>
+      <div id="errorMessage" style="color: red; margin-bottom: 15px;"></div>
 
-        <!-- Login Form -->
-        <div id="loginForm">
-          <form onsubmit="handleLogin(event)">
-            <div class="form-group">
-              <label>Company Name or Card Number</label>
-              <input id="loginInput" type="text" placeholder="Enter company name or card number" autocomplete="off"
-                required>
-            </div>
-            <!-- PIN Input -->
-            <div class="form-group">
-              <label>Security PIN</label>
-              <input id="pinInput" type="password" placeholder="Enter 4-digit PIN" maxlength="8" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Sign In</button>
-          </form>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Company/Card Number</label>
+          <input id="loginInput" type="text" placeholder="Enter ID" required>
         </div>
-      </div>
+        <div class="form-group">
+          <label>Security PIN</label>
+          <input id="pinInput" type="password" placeholder="****" maxlength="8" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Unlock Wallet</button>
+      </form>
     </div>
 
-    <!-- Wallet Dashboard Section -->
-    <div id="walletSection" class="wallet-section">
-      <!-- Header -->
-      <div class="wallet-header">
-        <h2>My Wallet</h2>
-        <a href="javascript:handleLogout()" class="logout-link">Lock Wallet</a>
-      </div>
-
-      <!-- Wallet Card -->
-      <div class="wallet-card">
-        <div class="wallet-card-content">
-          <div class="wallet-card-header">
-            <div class="wallet-card-logo">
-              💳 <span id="trustedBadge" class="trusted-badge" style="display:none">✅</span>
+    <!-- Wallet Dashboard -->
+    <div id="walletSection" style="display: none;">
+      <div class="visa-card-container">
+        <div class="visa-card">
+          <div class="card-logo">💰</div>
+          <div class="card-number" id="displayCardNumber">0000 0000 0000 0000</div>
+          <div class="card-bottom">
+            <div class="card-holder">
+              <small>CARDHOLDER</small>
+              <h3 id="displayCompanyName">Company</h3>
             </div>
-            <div class="wallet-card-type">Active Wallet</div>
+            <div class="card-brand">VISA</div>
           </div>
+        </div>
 
-          <div class="wallet-health-score">
-            <span class="health-badge" id="healthScoreDisplay">Health: 100</span>
-          </div>
-
-          <div class="wallet-card-number" id="displayCardNumber">**** **** **** 0000</div>
-
-          <div class="wallet-card-footer">
-            <div class="wallet-cardholder">
-              <label>CARDHOLDER</label>
-              <h3 id="displayCompanyName">Company Name</h3>
-            </div>
-            <div class="wallet-manager">
-              <label>MANAGER</label>
-              <p id="displayManagerName">Manager Name</p>
-            </div>
-          </div>
+        <div class="card-info">
+          <h2 style="color: #667eea; margin-bottom: 10px;">Wallet Balance</h2>
+          <div class="stat-value" id="displayBalance" style="font-size: 36px;">$0.00</div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+          <p><strong>Manager:</strong> <span id="displayManagerName">-</span></p>
+          <p><strong>Health:</strong> <span id="healthScoreDisplay">100</span>%</p>
+          <button class="btn btn-small-secondary" onclick="handleLogout()" style="margin-top: 10px;">Lock
+            Wallet</button>
         </div>
       </div>
 
-      <!-- Messages -->
-      <div id="successMessage" class="success-message"></div>
-      <div id="errorMessageDash" class="error-message"></div>
-
-      <!-- Balance Section -->
-      <div class="balance-section">
-        <div class="balance-item">
-          <span class="balance-label">Wallet Balance</span>
-          <span class="balance-value" id="displayBalance">$0.00</span>
-        </div>
-      </div>
-
-      <!-- Transfer Section -->
-      <div class="transfer-section">
+      <!-- Transfer -->
+      <div class="card-base">
         <h3>📤 Send Money</h3>
-        <form id="transferForm" onsubmit="preHookTransfer(event)">
-          <div class="transfer-form">
-            <div class="form-group recipient-group">
-              <label>Recipient (Company Name or Card #)</label>
-              <input id="recipientInput" type="text" placeholder="Enter company name or card number" autocomplete="off"
-                required>
-            </div>
+        <p style="color:#666; margin-bottom: 20px;">Securely transfer funds to other companies.</p>
 
-            <div class="form-group amount-group">
+        <form id="transferForm" onsubmit="preHookTransfer(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+              <label>Recipient ID/Name</label>
+              <input id="recipientInput" type="text" placeholder="e.g. Wailand" required>
+            </div>
+            <div class="form-group">
               <label>Amount ($)</label>
               <input id="amountInput" type="number" placeholder="0.00" min="0.01" step="0.01" required>
             </div>
-
-            <div class="form-group submit-group">
-              <button type="submit" class="btn btn-transfer">Send Money</button>
-            </div>
           </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Send Funds</button>
         </form>
-      </div>
 
-    </div>
-  </div>
-
-  <!-- Confirmation Modal -->
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal">
-      <h3>⚠️ Confirm Transfer</h3>
-      <p id="confirmText">Are you sure?</p>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="confirmTransfer()">Confirm Send</button>
+        <div id="successMessage" style="color: green; margin-top: 15px; font-weight: bold;"></div>
+        <div id="errorMessageDash" style="color: red; margin-top: 15px;"></div>
       </div>
     </div>
   </div>
 
-  <!-- JavaScript -->
+  <!-- JavaScript logic embedded for simplicity/consistency with previous -->
   <script>
-    // ===== Global State =====
     let currentUser = null;
     let pendingTransfer = null;
 
-    // ===== Handle Login =====
+    // Auto-fill login if coming from home
+    const cId = sessionStorage.getItem("companyId");
+    if (cId) {
+      // We can't auto-login without PIN, but we can pre-fill
+      // Actually, for security, maybe just force fresh login here as requested?
+      // "make if someone login to her commpnay send hem to home not wallet" -> handled in login.js
+    }
+
     async function handleLogin(event) {
       event.preventDefault();
-
       const loginInput = document.getElementById('loginInput').value.trim();
       const pinInput = document.getElementById('pinInput').value.trim();
-
-      const errorMessage = document.getElementById('errorMessage');
-      errorMessage.style.display = 'none';
+      const err = document.getElementById('errorMessage');
+      err.innerText = '';
 
       try {
-        const response = await fetch('/api/login', {
+        const res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ loginId: loginInput, pin: pinInput })
         });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Login failed');
-        }
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
 
         currentUser = data;
-        showWalletDashboard();
-
-      } catch (err) {
-        showError(err.message);
+        showWallet();
+      } catch (e) {
+        err.innerText = e.message;
       }
     }
 
-    // ===== Show Wallet Dashboard =====
-    function showWalletDashboard() {
+    function showWallet() {
       document.getElementById('loginSection').style.display = 'none';
       document.getElementById('walletSection').style.display = 'block';
-      updateWalletDisplay();
-
-      // Clear inputs
-      document.getElementById('loginInput').value = '';
-      document.getElementById('pinInput').value = '';
+      updateDisplay();
     }
 
-    // ===== Update Wallet Display =====
-    function updateWalletDisplay() {
+    function updateDisplay() {
       if (!currentUser) return;
-
-      const maskedCard = maskCardNumber(currentUser.cardNumber);
-      document.getElementById('displayCardNumber').textContent = maskedCard;
-      document.getElementById('displayCompanyName').textContent = currentUser.company;
-      document.getElementById('displayManagerName').textContent = currentUser.manager;
-      document.getElementById('displayBalance').textContent = `$${formatCurrency(currentUser.balance)}`;
-
-      // Health Score
-      const healthScore = currentUser.healthScore !== undefined ? currentUser.healthScore : 100;
-      document.getElementById('healthScoreDisplay').textContent = `Health: ${healthScore}`;
-
-      // Trusted Badge
-      if (currentUser.trusted) {
-        document.getElementById('trustedBadge').style.display = 'inline';
-      } else {
-        document.getElementById('trustedBadge').style.display = 'none';
-      }
-    }
-
-    // ===== Pre-hook Transfer (Show Modal) =====
-    function preHookTransfer(event) {
-      event.preventDefault();
-
-      const recipient = document.getElementById('recipientInput').value.trim();
-      const amount = document.getElementById('amountInput').value;
-
-      if (!recipient || !amount) {
-        showErrorDash("Please fill all fields");
-        return;
-      }
-
-      pendingTransfer = {
-        recipientId: recipient,
-        amount: amount
-      };
-
-      document.getElementById('confirmText').textContent = `Send $${formatCurrency(amount)} to "${recipient}"?`;
-      document.getElementById('confirmModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('confirmModal').style.display = 'none';
-      pendingTransfer = null;
-    }
-
-    // ===== Confirm & Execute Transfer =====
-    async function confirmTransfer() {
-      if (!pendingTransfer || !currentUser) return;
-
-      const { recipientId, amount } = pendingTransfer;
-      closeModal(); // Close first
-
-      try {
-        const response = await fetch('/api/transfer', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            senderId: currentUser.id,
-            recipientId: recipientId,
-            amount: amount
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Transfer failed');
-        }
-
-        // Update local balance
-        currentUser.balance = data.newBalance;
-        currentUser.healthScore = data.healthScore;
-        updateWalletDisplay();
-        showSuccess(`Successfully sent $${formatCurrency(amount)}`);
-
-        // Reset form
-        document.getElementById('transferForm').reset();
-
-      } catch (err) {
-        showErrorDash(err.message);
-      }
-    }
-
-    // ===== Utility Functions =====
-
-    function maskCardNumber(cardNumber) {
-      if (!cardNumber || cardNumber.length !== 16) return '**** **** **** 0000';
-      const lastFour = cardNumber.slice(-4);
-      return `**** **** **** ${lastFour}`;
-    }
-
-    function formatCurrency(amount) {
-      return parseFloat(amount).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-
-    function showError(message) {
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-      setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
-    }
-
-    function showErrorDash(message) {
-      const errorDiv = document.getElementById('errorMessageDash');
-      errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
-      setTimeout(() => {
-        errorDiv.style.display = 'none';
-      }, 5000);
-    }
-
-    function showSuccess(message) {
-      const successDiv = document.getElementById('successMessage');
-      successDiv.textContent = '✓ ' + message;
-      successDiv.style.display = 'block';
-      setTimeout(() => {
-        successDiv.style.display = 'none';
-        successDiv.textContent = '';
-      }, 4000);
+      document.getElementById('displayCardNumber').innerText = currentUser.cardNumber.replace(/(\d{4})(?=\d)/g, '$1 ');
+      document.getElementById('displayCompanyName').innerText = currentUser.company;
+      document.getElementById('displayManagerName').innerText = currentUser.manager;
+      document.getElementById('displayBalance').innerText = '$' + Number(currentUser.balance).toLocaleString("en-US", { minimumFractionDigits: 2 });
+      document.getElementById('healthScoreDisplay').innerText = currentUser.healthScore;
     }
 
     function handleLogout() {
       currentUser = null;
-      document.getElementById('loginSection').style.display = 'flex';
       document.getElementById('walletSection').style.display = 'none';
+      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('pinInput').value = '';
     }
 
-    function logout() {
-      sessionStorage.removeItem("companyId");
-      window.location.href = "/";
+    function preHookTransfer(e) {
+      e.preventDefault();
+      const recipient = document.getElementById('recipientInput').value;
+      const amount = document.getElementById('amountInput').value;
+
+      if (confirm(`Send $${amount} to ${recipient}?`)) {
+        executeTransfer(recipient, amount);
+      }
+    }
+
+    async function executeTransfer(recipient, amount) {
+      try {
+        const res = await fetch('/api/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderId: currentUser.id,
+            recipientId: recipient,
+            amount: amount
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        currentUser.balance = data.newBalance;
+        updateDisplay();
+        document.getElementById('successMessage').innerText = "Transfer Successful!";
+        setTimeout(() => document.getElementById('successMessage').innerText = '', 3000);
+        document.getElementById('transferForm').reset();
+      } catch (e) {
+        document.getElementById('errorMessageDash').innerText = e.message;
+        setTimeout(() => document.getElementById('errorMessageDash').innerText = '', 3000);
+      }
     }
   </script>
 </body>

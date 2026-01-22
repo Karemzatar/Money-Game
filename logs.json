@@ -80,5 +80,31 @@
     "userId": "1769089124608",
     "action": "login_success",
     "timestamp": 1769089711277
+  },
+  {
+    "userId": "1769099073578",
+    "action": "company_created",
+    "timestamp": 1769099073581,
+    "company": "Wailand",
+    "manager": ".justme1."
+  },
+  {
+    "userId": "1769099073578",
+    "action": "wallet_frozen_by_admin",
+    "timestamp": 1769099322346
+  },
+  {
+    "userId": "1769100474860",
+    "action": "company_created",
+    "timestamp": 1769100474861,
+    "company": "Local",
+    "manager": "deww"
+  },
+  {
+    "userId": "1769100673453",
+    "action": "company_created",
+    "timestamp": 1769100673456,
+    "company": "deew",
+    "manager": "deww"
   }
 ]

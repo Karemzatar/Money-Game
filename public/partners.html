@@ -3,46 +3,46 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Partners</title>
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    .partner-card {
-      background: white;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .section {
-      margin-bottom: 30px;
-    }
-  </style>
 </head>
 
-<body class="home-page">
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="home.html" class="nav-logo">💰 Money Game</a>
+      <ul class="nav-menu">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="paybal-wallet.html">Wallet</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <div class="container">
-    <h1>🤝 Partnerships</h1>
-    <button class="btn btn-secondary" onclick="location.href='home.html'">← Back Home</button>
+    <div class="card-base">
+      <h1>🤝 Partnerships</h1>
+      <p style="margin-bottom: 20px; color: #666;">Partner with other companies to boost earnings by +25% and increase
+        share price.</p>
+      <button class="btn btn-secondary" onclick="location.href='home.html'" style="width: auto;">← Back Home</button>
+    </div>
 
-    <div class="section">
+    <div class="card-base">
       <h3>Incoming Requests</h3>
-      <div id="requestsList">Loading...</div>
+      <div id="requestsList" style="margin-top: 15px;">Loading...</div>
     </div>
 
-    <div class="section">
+    <div class="card-base">
       <h3>My Partners</h3>
-      <div id="partnersList">Loading...</div>
+      <div id="partnersList" style="margin-top: 15px;">Loading...</div>
     </div>
 
-    <div class="section">
+    <div class="card-base">
       <h3>Request Partnership</h3>
-      <input type="text" id="partnerSearch" placeholder="Enter Company Name to Request"
-        style="padding:10px; width:100%;">
-      <button class="btn btn-primary" onclick="sendRequest()" style="margin-top:10px;">Send Request</button>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <input type="text" id="partnerSearch" placeholder="Enter Company Name..." style="flex: 1;">
+        <button class="btn btn-primary" onclick="sendRequest()" style="width: auto;">Send Request</button>
+      </div>
     </div>
   </div>
 
@@ -53,41 +53,43 @@
     async function loadPartners() {
       const res = await fetch(`/data/${companyId}`);
       const data = await res.json();
-
       const reqList = document.getElementById('requestsList');
       const partList = document.getElementById('partnersList');
 
       reqList.innerHTML = '';
-      partList.innerHTML = ''; // In real app, we need to fetch partner names, but data only has IDs probably? 
-      // The data endpoint returns `partnershipRequests` with names: {fromId, fromName}.
+      partList.innerHTML = '';
 
-      if (data.partnershipRequests.length === 0) reqList.innerHTML = '<p>No pending requests.</p>';
-      data.partnershipRequests.forEach(r => {
-        const div = document.createElement('div');
-        div.className = 'partner-card';
-        div.innerHTML = `
-                    <span><b>${r.fromName}</b> wants to partner!</span>
-                    <button class="btn btn-small-primary" onclick="accept('${r.fromId}')">Accept</button>
-                `;
-        reqList.appendChild(div);
-      });
-
-      // For partners array, we just have IDs. We might need to fetch their names or just show Count. 
-      // Ideally we'd have a 'get multiple companies' endpoint or cache.
-      // For now, let's just list the IDs or "Partner #1".
-      if (data.partners.length === 0) partList.innerHTML = '<p>No partners yet.</p>';
+      if (data.partnershipRequests.length === 0) reqList.innerHTML = '<p style="color:#999;">No pending requests.</p>';
       else {
-        // Determine names - fetch all companies is expensive but we have the endpoint
-        // Let's do a quick lazy load
-        const allRes = await fetch('/api/companies'); // This is light enough (only safe data)
+        data.partnershipRequests.forEach(r => {
+          const div = document.createElement('div');
+          div.style.padding = '15px';
+          div.style.border = '1px solid #eee';
+          div.style.borderRadius = '10px';
+          div.style.marginBottom = '10px';
+          div.style.display = 'flex';
+          div.style.justifyContent = 'space-between';
+          div.style.alignItems = 'center';
+          div.innerHTML = `<span><b>${r.fromName}</b> wants to join forces!</span> <button class="btn btn-primary" style="width:auto; padding: 8px 15px;" onclick="accept('${r.fromId}')">Accept</button>`;
+          reqList.appendChild(div);
+        });
+      }
+
+      if (data.partners.length === 0) partList.innerHTML = '<p style="color:#999;">No partners yet.</p>';
+      else {
+        // Fetch all helper
+        const allRes = await fetch('/api/companies');
         const all = await allRes.json();
 
         data.partners.forEach(pid => {
           const p = all.find(c => c.id === pid);
           const name = p ? p.company : "Unknown Company";
           const div = document.createElement('div');
-          div.className = 'partner-card';
-          div.innerHTML = `<span>🤝 ${name}</span> <span style="color:green;">Active (+25% Bonus)</span>`;
+          div.style.padding = '15px';
+          div.style.background = '#f9f9f9';
+          div.style.borderRadius = '10px';
+          div.style.marginBottom = '10px';
+          div.innerHTML = `<b>🤝 ${name}</b> <span style="color:green; float:right;">Active (+25% Boost)</span>`;
           partList.appendChild(div);
         });
       }
@@ -104,12 +106,14 @@
 
     async function sendRequest() {
       const name = document.getElementById('partnerSearch').value;
-      // First find the ID
+      if (!name) return;
+
       const allRes = await fetch(`/api/companies?q=${name}`);
       const all = await allRes.json();
       const target = all.find(c => c.company.toLowerCase() === name.toLowerCase());
 
       if (!target) { alert("Company not found"); return; }
+      if (target.id === companyId) { alert("Cannot partner with yourself"); return; }
 
       await fetch('/api/partners/request', {
         method: 'POST',
@@ -117,6 +121,7 @@
         body: JSON.stringify({ requesterId: companyId, targetCompanyId: target.id })
       });
       alert("Request sent!");
+      document.getElementById('partnerSearch').value = '';
     }
 
     loadPartners();
