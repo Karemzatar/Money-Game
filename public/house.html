@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Game - House</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="home-page">
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">💰 Money Game</div>
+      <ul class="nav-menu">
+        <li><a href="home.html">Home</a></li>
+        <li><a href="paybal-wallet.html">Wallet</a></li>
+        <li><a href="shares.html">Shares</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>🏠 House</h1>
+        <p>Coming Soon...</p>
+      </div>
+      <a href="home.html" class="btn btn-primary">Back to Home</a>
+    </div>
+  </div>
+  <script>
+    function logout() {
+      sessionStorage.removeItem("companyId");
+      window.location.href = "/";
+    }
+  </script>
+</body>
+</html>

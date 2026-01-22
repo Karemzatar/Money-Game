@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Money Game - Home</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .icon-btn {
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .nav-icons {
+      display: flex;
+      gap: 15px;
+    }
+  </style>
+</head>
+
+<body class="home-page">
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">💰 Money Game</div>
+      <div class="nav-icons">
+        <button class="icon-btn" onclick="toggleFreeze()" title="Freeze Account (Netfactions)">❄️</button>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="home.html" class="active">Home</a></li>
+        <li><a href="paybal-wallet.html">Wallet</a></li>
+        <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Search -->
+    <input type="text" id="companySearch" class="search-box" placeholder="🔍 Search companies..."
+      onkeyup="searchCompanies()">
+    <div id="searchResults"
+      style="display:none; background:white; padding:10px; border-radius:8px; margin-bottom:20px;"></div>
+
+    <!-- Visa Card -->
+    <div class="visa-card-container">
+      <div class="visa-card" onclick="location.href='company-details.html?id='+companyId">
+        <div class="card-background"></div>
+        <div class="card-logo">💳</div>
+        <div class="card-content">
+          <div class="card-number" id="cardNumber">0000 0000 0000 0000</div>
+          <div class="card-bottom">
+            <div class="card-holder"><small>CARDHOLDER</small>
+              <h3 id="companyName"></h3>
+            </div>
+            <div class="card-brand">VISA <span id="visaTypeDisplay">Classic</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-info">
+        <p><strong>Balance:</strong> <span id="balance">$0.00</span></p>
+        <p><strong>Level:</strong> <span id="companyLevel">0</span></p>
+        <p><strong>Share Price:</strong> <span id="sharePrice">$0.00</span></p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-grid">
+      <button class="btn btn-earn" onclick="earn()">💸 Make Money (+<span id="earnRate">$2.50</span>)</button>
+      <button class="btn btn-primary" onclick="location.href='company-details.html?id='+companyId">👤 My
+        Profile</button>
+      <button class="btn btn-secondary" onclick="location.href='partners.html'">🤝 Partners</button>
+    </div>
+
+  </div>
+
+  <script src="js/home.js"></script>
+  <script>
+    // Inline search logic for speed
+    async function searchCompanies() {
+      const q = document.getElementById('companySearch').value;
+      const resDiv = document.getElementById('searchResults');
+      if (q.length < 2) { resDiv.style.display = 'none'; return; }
+
+      const res = await fetch(`/api/companies?q=${q}`);
+      const data = await res.json();
+
+      resDiv.innerHTML = '';
+      resDiv.style.display = 'block';
+      if (data.length === 0) resDiv.innerHTML = '<p>No results found</p>';
+
+      data.forEach(c => {
+        const div = document.createElement('div');
+        div.style.padding = '10px';
+        div.style.borderBottom = '1px solid #eee';
+        div.style.cursor = 'pointer';
+        div.innerHTML = `<b>${c.company}</b> - Level ${c.level}`;
+        div.onclick = () => window.location.href = `company-details.html?id=${c.id}`;
+        resDiv.appendChild(div);
+      });
+    }
+
+    async function toggleFreeze() {
+      if (!confirm("Security: Do you want to FREEZE/UNFREEZE your account?")) return;
+      // Get current status first
+      const currentLocked = await checkLockStatus();
+      await fetch('/api/account/freeze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ companyId, locked: !currentLocked })
+      });
+      alert("Account status updated.");
+      location.reload();
+    }
+
+    // Helper to check lock status locally or refetch
+    // For now, assuming home.js loads valid data, we can check a global var or refetch
+    async function checkLockStatus() {
+      const res = await fetch(`/data/${companyId}`);
+      const d = await res.json();
+      return d.locked;
+    }
+  </script>
+</body>
+
+</html>

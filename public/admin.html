@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: none;
+        }
+
+        .btn-freeze {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-unfreeze {
+            background: #28a745;
+            color: white;
+        }
+
+        .log-entry {
+            font-family: monospace;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>👮 Admin Dashboard</h1>
+
+    <div class="card">
+        <h2>Wallet Management</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Manager</th>
+                    <th>Balance</th>
+                    <th>Level</th>
+                    <th>Share Price</th>
+                    <th>Partners</th>
+                    <th>Health</th>
+                    <th>PIN</th>
+                    <th>Card</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="walletTable">
+                <!-- Rows here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Security Logs</h2>
+        <div id="logContainer" style="max-height: 400px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const res = await fetch('/api/admin/data');
+            const data = await res.json();
+
+            const tbody = document.getElementById('walletTable');
+            tbody.innerHTML = '';
+
+            data.companies.forEach(c => {
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td>${c.company} ${c.trusted ? '✅' : ''}</td>
+          <td>${c.manager}</td>
+          <td>$${c.balance.toLocaleString()}</td>
+          <td>${c.level || 0}</td>
+          <td>$${(c.sharePrice || 0).toFixed(2)}</td>
+          <td>${c.partners ? c.partners.length : 0}</td>
+          <td>${c.healthScore}</td>
+          <td>${c.pin}</td>
+          <td>${c.cardNumber}</td>
+          <td>${c.locked ? '🔒 LOCKED' : 'Active'}</td>
+          <td>
+            <button class="${c.locked ? 'btn-unfreeze' : 'btn-freeze'}" 
+              onclick="toggleLock('${c.id}', ${!c.locked})">
+              ${c.locked ? 'Unfreeze' : 'Freeze'}
+            </button>
+          </td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            const logDiv = document.getElementById('logContainer');
+            logDiv.innerHTML = '';
+            data.logs.slice().reverse().forEach(log => {
+                const div = document.createElement('div');
+                div.className = 'log-entry';
+                div.textContent = `[${new Date(log.timestamp).toLocaleTimeString()}] User:${log.userId} Action:${log.action} ${JSON.stringify(log)}`;
+                logDiv.appendChild(div);
+            });
+        }
+
+        async function toggleLock(id, locked) {
+            if (!confirm(locked ? "Freeze this wallet?" : "Unfreeze this wallet?")) return;
+
+            await fetch('/api/admin/lock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targetId: id, locked })
+            });
+            loadData();
+        }
+
+        loadData();
+        setInterval(loadData, 5000); // Auto refresh
+    </script>
+</body>
+
+</html>

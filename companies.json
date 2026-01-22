@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1769087838390",
+    "company": "Local",
+    "manager": "Local",
+    "balance": 37.5,
+    "cardNumber": "2674836883271392",
+    "createdAt": "2026-01-22T13:17:18.390Z",
+    "pin": "$2b$10$BWMVYjFUwocvkrOYnZkttOITjmXY4w07Kv9ViNZqdqxWwQKaFVetm",
+    "locked": false,
+    "healthScore": 70,
+    "favorites": [],
+    "trusted": false,
+    "level": 0,
+    "assets": 0,
+    "sharePrice": 1.25,
+    "partners": [
+      "1769089124608"
+    ],
+    "partnershipRequests": [],
+    "visaType": "Basic"
+  },
+  {
+    "id": "1769089124608",
+    "company": "Wailand",
+    "manager": "Beatrix",
+    "balance": 22.5,
+    "cardNumber": "1486612316540942",
+    "createdAt": "2026-01-22T13:38:44.608Z",
+    "pin": "37888",
+    "locked": false,
+    "healthScore": 75,
+    "favorites": [],
+    "trusted": false,
+    "level": 0,
+    "assets": 0,
+    "sharePrice": 1.25,
+    "partners": [
+      "1769087838390"
+    ],
+    "partnershipRequests": [],
+    "visaType": "Basic"
+  }
+]

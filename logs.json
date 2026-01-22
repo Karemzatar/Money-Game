@@ -1,0 +1,84 @@
+[
+  {
+    "userId": "1769087838390",
+    "action": "company_created",
+    "timestamp": 1769087838392,
+    "company": "Local",
+    "manager": "Local"
+  },
+  {
+    "userId": "1769087838390",
+    "action": "login_success",
+    "timestamp": 1769087857182
+  },
+  {
+    "userId": "1769087838390",
+    "action": "login_success",
+    "timestamp": 1769087872262
+  },
+  {
+    "userId": "1769087838390",
+    "action": "login_failed",
+    "timestamp": 1769089066086,
+    "reason": "Invalid PIN"
+  },
+  {
+    "userId": "1769087838390",
+    "action": "login_failed",
+    "timestamp": 1769089067606,
+    "reason": "Invalid PIN"
+  },
+  {
+    "userId": "1769089124608",
+    "action": "company_created",
+    "timestamp": 1769089124609,
+    "company": "Wailand",
+    "manager": "Beatrix"
+  },
+  {
+    "userId": "1769089124608",
+    "action": "login_success",
+    "timestamp": 1769089138520
+  },
+  {
+    "userId": "1769087838390",
+    "action": "wallet_frozen_by_admin",
+    "timestamp": 1769089162488
+  },
+  {
+    "userId": "1769089124608",
+    "action": "wallet_frozen_by_admin",
+    "timestamp": 1769089165157
+  },
+  {
+    "userId": "1769089124608",
+    "action": "login_attempt_locked",
+    "timestamp": 1769089180862
+  },
+  {
+    "userId": "1769089124608",
+    "action": "wallet_unfrozen_by_admin",
+    "timestamp": 1769089189164
+  },
+  {
+    "userId": "1769087838390",
+    "action": "wallet_unfrozen_by_admin",
+    "timestamp": 1769089189849
+  },
+  {
+    "userId": "1769089124608",
+    "action": "login_success",
+    "timestamp": 1769089192728
+  },
+  {
+    "userId": "1769089124608",
+    "action": "login_failed",
+    "timestamp": 1769089702485,
+    "reason": "Invalid PIN"
+  },
+  {
+    "userId": "1769089124608",
+    "action": "login_success",
+    "timestamp": 1769089711277
+  }
+]

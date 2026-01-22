@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Details - Money Game</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+  <div class="container">
+    <div class="login-box" style="width: 100%; max-width: 600px;">
+      <div class="login-header">
+        <h1>💼 Company Details</h1>
+        <p>Manage Your Company</p>
+      </div>
+
+      <!-- Visa Card Display -->
+      <div class="visa-card-container" style="margin-bottom: 30px;">
+        <div class="visa-card" id="detailsVisa">
+          <div class="card-background"></div>
+          <div class="card-logo">💳</div>
+          <div class="card-chip"></div>
+          
+          <div class="card-content">
+            <div class="card-number" id="detailsCardNumber">0000 0000 0000 0000</div>
+            
+            <div class="card-bottom">
+              <div class="card-holder">
+                <small>CARDHOLDER</small>
+                <h3 id="detailsCompanyName"></h3>
+              </div>
+              <div class="card-expiry">
+                <small>EXPIRES</small>
+                <p>12/28</p>
+              </div>
+              <div class="card-brand">VISA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company Information Section -->
+      <div class="details-info-section">
+        <h3>Company Information</h3>
+        
+        <div class="info-group">
+          <label>Company Name:</label>
+          <p id="detailsCompanyNameText"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Manager Name:</label>
+          <p id="detailsManagerName"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Card Number:</label>
+          <p id="detailsCardNumberText" style="font-family: monospace; font-size: 1.1em;"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Current Balance:</label>
+          <p id="detailsBalance" style="font-size: 1.3em; font-weight: bold; color: #4CAF50;"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Card Status:</label>
+          <p id="detailsCardStatus" style="font-size: 1.1em; font-weight: bold;"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Created On:</label>
+          <p id="detailsCreatedDate"></p>
+        </div>
+
+        <div class="info-group">
+          <label>Account Age:</label>
+          <p id="detailsAccountAge"></p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="details-buttons">
+        <a href="login.html" class="btn btn-secondary">← Back to Companies</a>
+        <button class="btn btn-delete" onclick="deleteCompany()">🗑️ Delete Company</button>
+      </div>
+
+      <div id="error" class="error-message"></div>
+    </div>
+  </div>
+
+  <script src="js/company-details.js"></script>
+</body>
+</html>

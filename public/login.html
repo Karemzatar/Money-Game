@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Game - Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="login-page">
+  <div class="container">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>💰 Money Game</h1>
+        <p>Start Your Business Journey</p>
+      </div>
+
+      <!-- Existing Companies Section -->
+      <div id="companiesSection" style="display: none;">
+        <h3>Your Companies</h3>
+        <div id="companiesList" class="companies-list"></div>
+        <button type="button" class="btn btn-secondary" onclick="toggleCreateForm()">+ Create New Company</button>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e0e0e0;">
+      </div>
+
+      <!-- Create New Company Form -->
+      <form id="createForm" onsubmit="login(event)">
+        <h3 id="formTitle">Create New Company</h3>
+        <div class="form-group">
+          <label>Company Name</label>
+          <input id="company" type="text" placeholder="Enter company name" required>
+        </div>
+        <div class="form-group">
+          <label>Manager Name</label>
+          <input id="manager" type="text" placeholder="Enter manager name" required>
+        </div>
+        <div class="form-group">
+          <label>Visa Card Type</label>
+          <select id="visaType" style="width:100%; padding: 12px 15px; border: 1px solid #d3d8de; border-radius: 6px;">
+            <option value="Visa Classic">Visa Classic</option>
+            <option value="Visa Gold">Visa Gold</option>
+            <option value="Visa Platinum">Visa Platinum</option>
+            <option value="Visa Signature">Visa Signature</option>
+            <option value="Visa Infinite">Visa Infinite</option>
+            <option value="Visa Business">Visa Business</option>
+            <option value="Visa Corporate">Visa Corporate</option>
+            <option value="Visa Black">Visa Black</option>
+            <option value="Visa Titanium">Visa Titanium</option>
+            <option value="Visa Diamond">Visa Diamond</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Company</button>
+      </form>
+      <div id="error" class="error-message"></div>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+
+</html>

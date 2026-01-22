@@ -1,0 +1,737 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+body.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+body.home-page {
+  padding-top: 70px;
+}
+
+/* Navigation Bar */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  padding: 15px 0;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.nav-logo {
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+  padding: 8px 15px;
+  border-radius: 5px;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.logout-btn {
+  background: #e74c3c !important;
+  color: white !important;
+  padding: 8px 15px !important;
+  border-radius: 5px !important;
+}
+
+.logout-btn:hover {
+  background: #c0392b !important;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+/* Login Box */
+.login-box {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  color: #667eea;
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 1.1em;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.95em;
+  min-height: 20px;
+}
+
+/* Companies List */
+#companiesSection h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+}
+
+.companies-list {
+  margin-bottom: 20px;
+}
+
+.company-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.company-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.company-info {
+  flex: 1;
+}
+
+.company-info h4 {
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+.company-info p {
+  color: #666;
+  font-size: 0.95em;
+  margin: 3px 0;
+}
+
+.company-balance {
+  color: #667eea;
+  font-weight: bold;
+}
+
+.company-card-number {
+  color: #333;
+  font-size: 0.9em;
+}
+
+.company-card-number code {
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #667eea;
+}
+
+.company-card-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: 15px;
+}
+
+.btn-secondary {
+  background: #667eea;
+  color: white;
+  width: auto;
+  padding: 10px 20px;
+}
+
+.btn-secondary:hover {
+  background: #764ba2;
+}
+
+.btn-small-primary {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.btn-small-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-small-secondary {
+  padding: 8px 15px;
+  background: #f59e0b;
+  color: white;
+  font-size: 0.9em;
+  white-space: nowrap;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-small-secondary:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Company Details Page */
+.details-info-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-left: 4px solid #667eea;
+}
+
+.details-info-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+
+.info-group {
+  margin-bottom: 18px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.info-group label {
+  display: block;
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.95em;
+  margin-bottom: 5px;
+}
+
+.info-group p {
+  color: #333;
+  font-size: 1.05em;
+  margin: 0;
+}
+
+.details-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.details-buttons .btn {
+  flex: 1;
+  min-width: 150px;
+}
+
+#createForm h3 {
+  color: #667eea;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Buttons */
+.btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-top: 10px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-small {
+  padding: 8px 15px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  font-size: 0.9em;
+}
+
+.btn-small:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-earn {
+  width: 100%;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  margin: 30px 0;
+  font-size: 1.1em;
+  padding: 15px;
+}
+
+.btn-earn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(245, 87, 108, 0.4);
+}
+
+.btn-wallet {
+  width: 100%;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  margin-top: 20px;
+  font-size: 1.1em;
+  padding: 15px;
+}
+
+.btn-wallet:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(79, 172, 254, 0.4);
+}
+
+/* Visa Card */
+.visa-card-container {
+  margin: 30px 0;
+}
+
+.visa-card {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 20px;
+  height: 300px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  cursor: pointer;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.visa-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+
+.visa-card.silver {
+  background: linear-gradient(135deg, #a8a9a9 0%, #e8e8e8 100%);
+}
+
+.visa-card.gold {
+  background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+}
+
+.visa-card.diamond {
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+}
+
+.visa-card.classic {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #333;
+}
+
+.visa-card.platinum {
+  background: linear-gradient(135deg, #e5e5e5 0%, #b8b8b8 100%);
+}
+
+.visa-card.signature {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.visa-card.infinite {
+  background: linear-gradient(135deg, #000000 0%, #2c2c2c 100%);
+  color: #ffd700;
+}
+
+.card-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.05) 10px, rgba(255,255,255,.05) 20px);
+}
+
+.card-logo {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 2em;
+}
+
+.card-chip {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  width: 50px;
+  height: 40px;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  border-radius: 5px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.card-number {
+  font-size: 1.8em;
+  font-weight: bold;
+  letter-spacing: 3px;
+  margin-top: 20px;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.card-holder {
+  flex: 1;
+}
+
+.card-holder small {
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+.card-holder h3 {
+  font-size: 1.1em;
+  margin-top: 5px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.card-expiry {
+  text-align: center;
+}
+
+.card-expiry small {
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+.card-expiry p {
+  font-size: 1.1em;
+  margin-top: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.card-brand {
+  font-size: 1.2em;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.card-info {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.card-info p {
+  margin: 10px 0;
+  color: #333;
+}
+
+.card-info strong {
+  color: #667eea;
+}
+
+.balance-text {
+  color: #27ae60;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.status-badge {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+/* Visa Types Section */
+.visa-types-section {
+  margin: 30px 0;
+}
+
+.btn-info-toggle {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 15px;
+}
+
+/* Visa Types */
+.visa-types {
+  display: none;
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.visa-types.show {
+  display: block;
+}
+
+.visa-types h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.tier {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.tier:hover {
+  background: #e8e9ea;
+  transform: translateX(5px);
+}
+
+.tier-icon {
+  font-size: 2em;
+  margin-right: 20px;
+  min-width: 50px;
+}
+
+.tier-info h4 {
+  color: #667eea;
+  margin-bottom: 5px;
+  font-size: 1.1em;
+}
+
+.tier-info p {
+  color: #666;
+  font-size: 0.95em;
+}
+
+/* Ads Section */
+.ads-section {
+  margin: 30px 0 50px;
+}
+
+.ad-banner {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.ad-banner h4 {
+  font-size: 0.85em;
+  opacity: 0.8;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ad-banner p {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.ad-banner small {
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .login-box {
+    padding: 25px;
+  }
+
+  .nav-menu {
+    gap: 15px;
+  }
+
+  .nav-menu a {
+    padding: 5px 10px;
+    font-size: 0.9em;
+  }
+
+  .visa-card {
+    height: 250px;
+    padding: 20px;
+  }
+
+  .card-number {
+    font-size: 1.4em;
+    letter-spacing: 2px;
+  }
+
+  .card-holder h3 {
+    font-size: 0.95em;
+  }
+}
