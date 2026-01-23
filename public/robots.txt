@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /settings.html
+Disallow: /paybal-wallet.html
+
+Sitemap: https://money-game.up.railway.app/sitemap.xml

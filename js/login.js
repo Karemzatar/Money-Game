@@ -111,9 +111,68 @@ function login(event) {
         errorDiv.innerText = data.error;
       } else if (data.id) {
         sessionStorage.setItem("companyId", data.id);
-        // Alert user about their new PIN
-        alert(`Company created! Your PIN is: ${data.pin}\n\nPlease save this PIN as it is required to login.`);
-        window.location.href = "home.html";
+
+        // Show Netfactions Tutorial Video Modal
+        const modal = document.createElement('div');
+        modal.id = 'tutorialModal';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0,0,0,0.95)';
+        modal.style.zIndex = '9999';
+        modal.style.display = 'flex';
+        modal.style.flexDirection = 'column';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+
+        const title = document.createElement('h2');
+        title.innerText = "Welcome to Netfactions!";
+        title.style.color = '#4CAF50';
+        title.style.marginBottom = '20px';
+        title.style.fontFamily = 'Arial, sans-serif';
+
+        const video = document.createElement('video');
+        video.src = 'videos/tutorial.mp4';
+        video.controls = true;
+        video.autoplay = true;
+        video.style.maxWidth = '90%';
+        video.style.maxHeight = '70%';
+        video.style.borderRadius = '10px';
+        video.style.boxShadow = '0 0 20px rgba(76, 175, 80, 0.5)';
+
+        // Handle error if video missing
+        video.onerror = function () {
+          console.warn("Tutorial video not found.");
+          title.innerText += " (Video Unavailable)";
+        };
+
+        const pinMsg = document.createElement('p');
+        pinMsg.innerText = `Your Login PIN: ${data.pin}`;
+        pinMsg.style.color = '#fff';
+        pinMsg.style.fontSize = '18px';
+        pinMsg.style.marginTop = '20px';
+        pinMsg.style.fontWeight = 'bold';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerText = "Continue to Home";
+        closeBtn.className = "btn btn-primary";
+        closeBtn.style.marginTop = '20px';
+        closeBtn.style.padding = '10px 30px';
+        closeBtn.onclick = function () {
+          window.location.href = "home.html";
+        };
+
+        modal.appendChild(title);
+        modal.appendChild(video);
+        modal.appendChild(pinMsg);
+        modal.appendChild(closeBtn);
+        document.body.appendChild(modal);
+
+        // Alert is redundant if we show it in modal, but let's keep it safe or remove it?
+        // User saw "Alert user about their new PIN" comment. 
+        // I'll skip the alert since I added the PIN to the modal.
       }
     })
     .catch(err => {
