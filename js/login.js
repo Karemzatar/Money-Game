@@ -60,7 +60,7 @@ function displayCompanies() {
 function selectCompany(id) {
   sessionStorage.setItem("companyId", id);
   // Redirect to home page
-  window.location.href = "index.html";
+  window.location.href = "home.html";
 }
 
 function viewCompanyDetails(id) {
@@ -161,7 +161,7 @@ function login(event) {
         closeBtn.style.marginTop = '20px';
         closeBtn.style.padding = '10px 30px';
         closeBtn.onclick = function () {
-          window.location.href = "index.html";
+          window.location.href = "home.html";
         };
 
         modal.appendChild(title);

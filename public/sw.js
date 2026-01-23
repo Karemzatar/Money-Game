@@ -1,8 +1,8 @@
 const CACHE_NAME = 'money-game-v1';
 const ASSETS_TO_CACHE = [
     '/',
-    '/index.html',
-    '/login.html',
+    '/index.html', // Login page
+    '/home.html',  // Dashboard
     '/paybal-wallet.html',
     '/css/style.css',
     '/js/login.js',

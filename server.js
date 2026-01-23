@@ -80,7 +80,7 @@ function updateCompanyStats(company) {
 // ===== Routes =====
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/login.html");
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 // GET /api/companies (Public list)
@@ -252,14 +252,14 @@ app.post("/earn/:id", (req, res) => {
     // Level progression: Every $10,000 = 1 level (max 100)
     const oldLevel = company.level || 0;
     let calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
-    
+
     // Apply level maintenance cost if leveling up
     if (calculatedLevel > oldLevel) {
       const levelCost = calculatedLevel * 100;
       company.balance -= levelCost;
       company.level = calculatedLevel;
     }
-    
+
     // Re-check level after cost deduction (don't let cost cause level decrease)
     const finalLevel = Math.min(100, Math.floor(company.balance / 10000));
     if (finalLevel >= company.level) {
@@ -300,25 +300,25 @@ app.post("/api/transfer", (req, res) => {
     // Auto-level up for both sender and recipient based on their balances
     const senderOldLevel = sender.level || 0;
     const recipientOldLevel = recipient.level || 0;
-    
+
     let senderNewLevel = Math.min(100, Math.floor(sender.balance / 10000));
     let recipientNewLevel = Math.min(100, Math.floor(recipient.balance / 10000));
-    
+
     // Apply level maintenance cost if leveling up
     if (senderNewLevel > senderOldLevel) {
       const senderLevelCost = senderNewLevel * 100;
       sender.balance -= senderLevelCost;
     }
-    
+
     if (recipientNewLevel > recipientOldLevel) {
       const recipientLevelCost = recipientNewLevel * 100;
       recipient.balance -= recipientLevelCost;
     }
-    
+
     // Re-check levels after cost deduction
     senderNewLevel = Math.min(100, Math.floor(sender.balance / 10000));
     recipientNewLevel = Math.min(100, Math.floor(recipient.balance / 10000));
-    
+
     sender.level = senderNewLevel;
     recipient.level = recipientNewLevel;
 
@@ -442,14 +442,14 @@ app.delete("/companies/:id", (req, res) => {
   try {
     const companies = getCompanies();
     const companyIndex = companies.findIndex(c => c.id === req.params.id);
-    
+
     if (companyIndex === -1) return res.status(404).json({ error: "Company not found" });
-    
+
     const deletedCompany = companies.splice(companyIndex, 1)[0];
     saveCompanies(companies);
-    
+
     logAction(deletedCompany.id, "company_deleted", { company: deletedCompany.company });
-    
+
     res.json({ success: true, message: "Company deleted" });
   } catch (err) {
     console.error("Error deleting company:", err);
