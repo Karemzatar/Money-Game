@@ -141,7 +141,7 @@
   <script>
     // Re-implement inline scripts to ensure they work with new CSS
     let companyId = sessionStorage.getItem("companyId");
-    if (!companyId) window.location.href = "/";
+    if (!companyId) window.location.href = "index.html";
 
     async function searchCompanies() {
       const q = document.getElementById('companySearch').value;

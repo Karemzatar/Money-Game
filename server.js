@@ -6,6 +6,9 @@ const app = express();
 // Increase payload limit just in case
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static("public"));
+app.get("/index.html", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 app.use("/css", express.static("css"));
 app.use("/js", express.static("js"));
 
@@ -80,7 +83,7 @@ function updateCompanyStats(company) {
 // ===== Routes =====
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  res.redirect("/index.html");
 });
 
 // GET /api/companies (Public list)
