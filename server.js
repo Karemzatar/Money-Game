@@ -279,6 +279,48 @@ app.post("/earn/:id", (req, res) => {
   }
 });
 
+// POST /api/ad-reward (New Endpoint for Ad Rewards)
+app.post("/api/ad-reward", (req, res) => {
+  try {
+    const { companyId, reward } = req.body;
+    if (!companyId || !reward) return res.status(400).json({ error: "Missing fields" });
+
+    const companies = getCompanies();
+    const company = companies.find(c => c.id === companyId);
+
+    if (!company) return res.status(404).json({ error: "Company not found" });
+    if (company.locked) return res.status(403).json({ error: "Account locked" });
+
+    // Add Reward
+    company.balance += parseFloat(reward);
+
+    // Auto-level logic
+    const oldLevel = company.level || 0;
+    let calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
+
+    if (calculatedLevel > oldLevel) {
+      const levelCost = calculatedLevel * 100;
+      company.balance -= levelCost;
+      company.level = calculatedLevel;
+    }
+    // Re-check
+    const finalLevel = Math.min(100, Math.floor(company.balance / 10000));
+    if (finalLevel >= company.level) {
+      company.level = finalLevel;
+    }
+
+    updateCompanyStats(company);
+    saveCompanies(companies);
+
+    logAction(company.id, "ad_reward_claimed", { reward });
+
+    res.json({ success: true, balance: company.balance, level: company.level });
+  } catch (err) {
+    console.error("Error claiming ad reward:", err);
+    res.status(500).json({ error: "Failed to claim reward" });
+  }
+});
+
 // POST /api/transfer
 app.post("/api/transfer", (req, res) => {
   try {
