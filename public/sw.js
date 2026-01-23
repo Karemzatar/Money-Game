@@ -3,7 +3,6 @@ const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/login.html',
-    '/home.html',
     '/paybal-wallet.html',
     '/css/style.css',
     '/js/login.js',
