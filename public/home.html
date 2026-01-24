@@ -4,8 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#4CAF50">
+  <meta name="theme-color" content="#0a0e27">
   <title>Money Game | Build Your Business & Earn Money</title>
+  <meta name="description" content="Manage your business empire, earn money, and grow your company in Money Game.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="/manifest.json">
 </head>
 
 <body>
@@ -35,10 +38,27 @@
     <input type="text" id="companySearch" placeholder="🔍 Search companies..." onkeyup="searchCompanies()">
     <div id="searchResults" class="card-base" style="display:none; padding: 10px;"></div>
 
-    <!-- Top Ad Banner -->
-    <div class="ad-banner"
-      style="margin: 20px 0; padding: 15px; background: #e0e0e0; border-radius: 8px; text-align: center; border: 1px dashed #aaa;">
-      <p style="color: #666; margin: 0;">📢 Sponsored Advertisement Place 📢</p>
+    <!-- Rewarded Ad Banner -->
+    <div class="ad-banner" id="rewardAd"
+      style="margin: 20px 0; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); position: relative; overflow: hidden;">
+      <div
+        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns=\"
+        http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">
+        <circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"rgba(255,255,255,0.05)\" /></svg>') repeat; opacity: 0.1;">
+      </div>
+      <div style="position: relative; z-index: 1;">
+        <p style="color: #fff; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">🎥 Watch Ad & Earn Rewards!</p>
+        <p style="color: #fff; margin: 0 0 15px 0; font-size: 28px; font-weight: bold;">$<span
+            id="rewardAmount">50</span></p>
+        <button class="btn btn-primary" onclick="startRewardAd()"
+          style="background: #fff; color: #667eea; border: none; padding: 12px 30px; font-weight: 600; font-size: 16px; border-radius: 8px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+          Watch Ad (30s)
+        </button>
+        <p id="adTimer" style="display:none; margin-top:15px; color: #fff; font-size: 20px; font-weight: bold;">⏳ <span
+            id="timerSeconds">30</span>s</p>
+        <p id="adCooldown" style="display:none; margin-top:10px; color: #ffd700; font-size: 14px;">⏰ Next ad available
+          in: <span id="cooldownTime"></span></p>
+      </div>
     </div>
 
     <!-- Profile Section -->
@@ -109,12 +129,6 @@
       <button class="btn btn-primary" onclick="location.href='paybal-wallet.html'">
         💰 Wallet
       </button>
-    </div>
-
-    <!-- Ads Place -->
-    <div class="ad-placeholder"
-      style="margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 10px; text-align: center; color: #888;">
-      <p>Sponsored Ad (Ads Place)</p>
     </div>
   </div>
 
@@ -204,6 +218,142 @@
 
     setInterval(loadNotifications, 30000);
     loadNotifications();
+
+    // ========== REWARDED AD SYSTEM ==========
+    let adTime = 30;
+    let adInterval = null;
+
+    // Level System (based on balance)
+    function calculateAdLevel(balance) {
+      if (balance >= 10000) return 5;
+      if (balance >= 5000) return 4;
+      if (balance >= 2000) return 3;
+      if (balance >= 500) return 2;
+      return 1;
+    }
+
+    // Reward Based on Level
+    function getAdReward(level) {
+      const rewards = {
+        1: 50,
+        2: 75,
+        3: 100,
+        4: 150,
+        5: 250
+      };
+      return rewards[level] || 50;
+    }
+
+    // Update reward amount display based on current balance
+    function updateRewardDisplay() {
+      const balance = parseFloat(document.getElementById('balance').innerText.replace(/[$,]/g, '')) || 0;
+      const level = calculateAdLevel(balance);
+      const reward = getAdReward(level);
+      document.getElementById('rewardAmount').innerText = reward;
+    }
+
+    // Check cooldown
+    function canWatchAd() {
+      const last = localStorage.getItem("lastAdTime");
+      if (!last) return true;
+
+      const minutes = (Date.now() - Number(last)) / 60000;
+      return minutes >= 10; // 1 ad every 10 minutes
+    }
+
+    // Update cooldown display
+    function updateCooldownDisplay() {
+      const last = localStorage.getItem("lastAdTime");
+      if (!last) {
+        document.getElementById('adCooldown').style.display = 'none';
+        return;
+      }
+
+      const elapsed = (Date.now() - Number(last)) / 60000;
+      const remaining = 10 - elapsed;
+
+      if (remaining > 0) {
+        document.getElementById('adCooldown').style.display = 'block';
+        const mins = Math.floor(remaining);
+        const secs = Math.floor((remaining - mins) * 60);
+        document.getElementById('cooldownTime').innerText = `${mins}m ${secs}s`;
+      } else {
+        document.getElementById('adCooldown').style.display = 'none';
+      }
+    }
+
+    // Start Rewarded Ad
+    function startRewardAd() {
+      if (!canWatchAd()) {
+        alert("⏳ Please wait before watching another ad.\nYou can watch one ad every 10 minutes.");
+        return;
+      }
+
+      // Open cuty.io ad link (replace with your actual link)
+      window.open("https://cuty.io/vYKBJTB", "_blank");
+
+      // Show timer
+      document.getElementById("adTimer").style.display = "block";
+      document.querySelector("#rewardAd button").disabled = true;
+      document.querySelector("#rewardAd button").style.opacity = "0.5";
+      document.querySelector("#rewardAd button").style.cursor = "not-allowed";
+
+      adTime = 30;
+      adInterval = setInterval(() => {
+        adTime--;
+        document.getElementById("timerSeconds").innerText = adTime;
+
+        if (adTime <= 0) {
+          clearInterval(adInterval);
+          completeAd();
+        }
+      }, 1000);
+    }
+
+    // Complete Ad and Claim Reward
+    async function completeAd() {
+      adTime = 30;
+      document.getElementById("adTimer").style.display = "none";
+      document.getElementById("timerSeconds").innerText = "30";
+      document.querySelector("#rewardAd button").disabled = false;
+      document.querySelector("#rewardAd button").style.opacity = "1";
+      document.querySelector("#rewardAd button").style.cursor = "pointer";
+
+      localStorage.setItem("lastAdTime", Date.now());
+
+      const balance = parseFloat(document.getElementById('balance').innerText.replace(/[$,]/g, '')) || 0;
+      const level = calculateAdLevel(balance);
+      const reward = getAdReward(level);
+
+      try {
+        const res = await fetch('/api/ad-reward', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyId, reward })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert(`✅ Ad completed!\nYou earned $${reward}\n\nNew Balance: $${data.balance.toLocaleString()}\nLevel: ${data.level}`);
+          loadData(); // Reload all data
+          updateRewardDisplay();
+          updateCooldownDisplay();
+        } else {
+          alert("❌ Failed to claim reward: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        console.error("Error claiming ad reward:", err);
+        alert("❌ Network error. Please try again.");
+      }
+    }
+
+    // Initialize reward display and cooldown on page load
+    setTimeout(() => {
+      updateRewardDisplay();
+      updateCooldownDisplay();
+      setInterval(updateCooldownDisplay, 1000); // Update cooldown every second
+    }, 1000);
 
     function logout() {
       sessionStorage.removeItem("companyId");

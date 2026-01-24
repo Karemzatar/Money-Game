@@ -20,27 +20,27 @@ function loadData() {
     .then(res => res.json())
     .then(data => {
       currentData = data;
-      
+
       document.getElementById("companyName").innerText = data.company;
       document.getElementById("companyNameSmall").innerText = data.company;
       document.getElementById("managerName").innerText = data.manager || "N/A";
       document.getElementById("companyId").innerText = companyId;
-      
+
       // Set company image
       if (data.imageUrl) {
         document.getElementById("companyImage").src = data.imageUrl;
       }
-      
+
       document.getElementById("cardNumber").innerText = data.cardNumber.replace(/(\d{4})(?=\d)/g, '$1 ');
       document.getElementById("visaCompanyName").innerText = data.company;
 
       balance = Number(data.balance);
       currentLevel = data.level || 0;
-      
+
       // Calculate created date
       const createdDate = new Date(data.createdAt);
       document.getElementById("createdDate").innerText = createdDate.toLocaleDateString();
-      
+
       // Calculate account age
       const now = new Date();
       const diffTime = Math.abs(now - createdDate);
@@ -55,7 +55,13 @@ function loadData() {
 function updateUI(data) {
   document.getElementById("balance").innerText = `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
   document.getElementById("totalBalance").innerText = `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-  document.getElementById("companyLevel").innerText = data.level || 0;
+
+  // Check if companyLevel element exists before updating
+  const companyLevelEl = document.getElementById("companyLevel");
+  if (companyLevelEl) {
+    companyLevelEl.innerText = data.level || 0;
+  }
+
   document.getElementById("levelDisplay").innerText = data.level || 0;
   document.getElementById("sharePrice").innerText = `$${(data.sharePrice || 0).toFixed(2)}`;
   document.getElementById("healthScore").innerText = data.healthScore || 100;
@@ -87,7 +93,12 @@ function earn() {
       balance = data.balance;
       // Optimistic UI update
       document.getElementById("balance").innerText = `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-      document.getElementById("companyLevel").innerText = data.level;
+
+      const companyLevelEl = document.getElementById("companyLevel");
+      if (companyLevelEl) {
+        companyLevelEl.innerText = data.level;
+      }
+
       loadData(); // Reload for accurate stats
     });
 }
