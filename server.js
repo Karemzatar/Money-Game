@@ -1,507 +1,232 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
+const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
+const path = require('path');
+const db = require('./db');
+
 const app = express();
-
-// Increase payload limit just in case
-app.use(express.json({ limit: '1mb' }));
-app.use(express.static("public"));
-app.get("/index.html", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
-app.use("/css", express.static("css"));
-app.use("/js", express.static("js"));
-
-const companiesFile = "companies.json";
-const logsFile = "logs.json";
-
-// ===== Helper Functions =====
-
-function getCompanies() {
-  try {
-    if (!fs.existsSync(companiesFile)) return [];
-    const data = fs.readFileSync(companiesFile, 'utf8');
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.error("Error reading companies:", err);
-    return [];
-  }
-}
-
-function saveCompanies(companies) {
-  try {
-    fs.writeFileSync(companiesFile, JSON.stringify(companies, null, 2));
-  } catch (err) {
-    console.error("Error saving companies:", err);
-  }
-}
-
-function logAction(userId, action, extra = {}) {
-  try {
-    let logs = [];
-    if (fs.existsSync(logsFile)) {
-      logs = JSON.parse(fs.readFileSync(logsFile, 'utf8'));
-    }
-    const log = { userId, action, timestamp: Date.now(), ...extra };
-    logs.push(log);
-    fs.writeFileSync(logsFile, JSON.stringify(logs, null, 2));
-  } catch (err) {
-    console.error("Error logging action:", err);
-  }
-}
-
-function calculateSharePrice(company) {
-  // Share price = (Assets * 0.0001) + (Level * 2)
-  // If partners > 0, boost by 10% per partner
-  let price = (company.balance * 0.00001) + (company.level * 2);
-  if (price < 1) price = 1; // Minimum $1
-
-  // Partnership bonus
-  if (company.partners && company.partners.length > 0) {
-    // 25% increase? The requirement says "Accepted partnerships ... Increase in share price".
-    // Let's do a simple multiplier
-    price = price * (1 + (company.partners.length * 0.25));
-  }
-
-  return parseFloat(price.toFixed(2));
-}
-
-function determineVisaType(balance) {
-  if (balance >= 5000000) return "Visa Infinite";
-  if (balance >= 1000000) return "Visa Signature";
-  if (balance >= 500000) return "Visa Platinum";
-  if (balance >= 100000) return "Visa Gold";
-  return "Visa Classic";
-}
-
-function updateCompanyStats(company) {
-  company.sharePrice = calculateSharePrice(company);
-  company.visaType = determineVisaType(company.balance);
-}
-
-// ===== Routes =====
-
-app.get("/", (req, res) => {
-  res.redirect("/index.html");
-});
-
-// GET /api/companies (Public list)
-app.get("/api/companies", (req, res) => {
-  const companies = getCompanies();
-  // Return data for login screen (leaderboard/search style)
-  const query = req.query.q ? req.query.q.toLowerCase() : null;
-
-  let validCompanies = companies;
-  if (query) {
-    validCompanies = companies.filter(c => c.company.toLowerCase().includes(query));
-  }
-
-  const safeData = validCompanies.map(c => ({
-    id: c.id,
-    company: c.company,
-    manager: c.manager,
-    balance: c.balance,
-    cardNumber: c.cardNumber,
-    trusted: c.trusted,
-    locked: c.locked,
-    level: c.level || 0,
-    sharePrice: c.sharePrice || 0,
-    visaType: determineVisaType(c.balance),
-    imageUrl: c.imageUrl
-  }));
-  res.json(safeData);
-});
-
-// GET /data/:id (Detailed Profile)
-app.get("/data/:id", (req, res) => {
-  const companies = getCompanies();
-  const company = companies.find(c => c.id === req.params.id);
-  if (!company) return res.status(404).json({ error: "Not found" });
-
-  // Update dynamic stats on read
-  updateCompanyStats(company);
-  saveCompanies(companies);
-
-  // Return safe info (full profile for owner or public profile?)
-  // For now, returning mostly everything public needs plus balance (should be protected in real app but game logic allows view)
-  res.json({
-    id: company.id,
-    company: company.company,
-    manager: company.manager,
-    balance: company.balance,
-    cardNumber: company.cardNumber,
-    healthScore: company.healthScore,
-    trusted: company.trusted,
-    locked: company.locked,
-    level: company.level || 0,
-    sharePrice: company.sharePrice || 0,
-    partners: company.partners || [],
-    partnershipRequests: company.partnershipRequests || [],
-    visaType: determineVisaType(company.balance),
-    imageUrl: company.imageUrl,
-    createdAt: company.createdAt
-  });
-});
-
-// POST /api/create (Create new company)
-app.post("/api/create", (req, res) => {
-  try {
-    const { company, manager, imageUrl } = req.body;
-    if (!company || !manager) return res.status(400).json({ error: "Missing fields" });
-
-    const companies = getCompanies();
-
-    // Generate random 16-digit card number
-    const cardNumber = Array.from({ length: 16 }, () =>
-      Math.floor(Math.random() * 10)
-    ).join("");
-
-    // Generate random 5-digit PIN
-    const pin = Math.floor(10000 + Math.random() * 90000).toString();
-
-    const newCompany = {
-      id: Date.now().toString(),
-      company,
-      manager,
-      balance: 0,
-      cardNumber,
-      createdAt: new Date().toISOString(),
-      pin: pin,
-      locked: false,
-      healthScore: 100,
-      favorites: [],
-      trusted: false,
-      level: 0,
-      assets: 0,
-      sharePrice: 1.00,
-      partners: [],
-      partnershipRequests: [],
-      visaType: determineVisaType(0),
-      imageUrl: req.body.imageUrl || null
-    };
-
-    companies.push(newCompany);
-    saveCompanies(companies);
-
-    logAction(newCompany.id, "company_created", { company, manager });
-
-    res.json({ success: true, id: newCompany.id, pin: pin });
-  } catch (err) {
-    console.error("Error creating company:", err);
-    res.status(500).json({ error: "Failed to create company" });
-  }
-});
-
-// POST /api/login
-app.post("/api/login", async (req, res) => {
-  try {
-    const { loginId, pin } = req.body;
-    const companies = getCompanies();
-
-    const company = companies.find(c =>
-      c.company.toLowerCase() === loginId.toLowerCase() ||
-      c.cardNumber === loginId
-    );
-
-    if (!company) return res.status(404).json({ error: "Wallet not found" });
-
-    if (company.pin !== pin) {
-      logAction(company.id, "login_failed", { reason: "Invalid PIN" });
-      company.healthScore = Math.max(0, (company.healthScore || 100) - 5);
-      saveCompanies(companies);
-      return res.status(401).json({ error: "Invalid PIN" });
-    }
-
-    if (company.locked) {
-      logAction(company.id, "login_attempt_locked");
-      return res.status(403).json({ error: "Wallet is locked/frozen. Contact Admin." });
-    }
-
-    logAction(company.id, "login_success");
-    res.json(company);
-
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ error: "Internal Error" });
-  }
-});
-
-// POST /earn/:id (Money Button)
-app.post("/earn/:id", (req, res) => {
-  try {
-    const companies = getCompanies();
-    const company = companies.find(c => c.id === req.params.id);
-
-    if (!company) return res.status(404).json({ error: "Company not found" });
-
-    if (company.locked) return res.status(403).json({ error: "Account locked" });
-
-    // Calculate Earnings
-    // Base $2.50 + (level * 0.50)
-    let amount = 2.50 + ((company.level || 0) * 0.50);
-
-    // Partnership Bonus: +25% earnings per partner? "Accessed partnerships grant +25% earnings for both"
-    // Assuming additive for multiple partners? Or just flat +25% if any? 
-    // "Accepted partnerships grant +25% earnings" implies per partnership.
-    if (company.partners && company.partners.length > 0) {
-      const bonusMultiplier = 1 + (company.partners.length * 0.25);
-      amount = amount * bonusMultiplier;
-    }
-
-    company.balance += amount;
-
-    // Auto-level up based on balance
-    // Level progression: Every $10,000 = 1 level (max 100)
-    const oldLevel = company.level || 0;
-    let calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
-
-    // Apply level maintenance cost if leveling up
-    if (calculatedLevel > oldLevel) {
-      const levelCost = calculatedLevel * 100;
-      company.balance -= levelCost;
-      company.level = calculatedLevel;
-    }
-
-    // Re-check level after cost deduction (don't let cost cause level decrease)
-    const finalLevel = Math.min(100, Math.floor(company.balance / 10000));
-    if (finalLevel >= company.level) {
-      company.level = finalLevel;
-    }
-
-    updateCompanyStats(company);
-    saveCompanies(companies);
-
-    res.json({ balance: company.balance, level: company.level, sharePrice: company.sharePrice });
-  } catch (err) {
-    console.error("Error earning money:", err);
-    res.status(500).json({ error: "Failed to earn money" });
-  }
-});
-
-// POST /api/ad-reward (New Endpoint for Ad Rewards)
-app.post("/api/ad-reward", (req, res) => {
-  try {
-    const { companyId, reward } = req.body;
-    if (!companyId || !reward) return res.status(400).json({ error: "Missing fields" });
-
-    const companies = getCompanies();
-    const company = companies.find(c => c.id === companyId);
-
-    if (!company) return res.status(404).json({ error: "Company not found" });
-    if (company.locked) return res.status(403).json({ error: "Account locked" });
-
-    // Add Reward
-    company.balance += parseFloat(reward);
-
-    // Auto-level logic
-    const oldLevel = company.level || 0;
-    let calculatedLevel = Math.min(100, Math.floor(company.balance / 10000));
-
-    if (calculatedLevel > oldLevel) {
-      const levelCost = calculatedLevel * 100;
-      company.balance -= levelCost;
-      company.level = calculatedLevel;
-    }
-    // Re-check
-    const finalLevel = Math.min(100, Math.floor(company.balance / 10000));
-    if (finalLevel >= company.level) {
-      company.level = finalLevel;
-    }
-
-    updateCompanyStats(company);
-    saveCompanies(companies);
-
-    logAction(company.id, "ad_reward_claimed", { reward });
-
-    res.json({ success: true, balance: company.balance, level: company.level });
-  } catch (err) {
-    console.error("Error claiming ad reward:", err);
-    res.status(500).json({ error: "Failed to claim reward" });
-  }
-});
-
-// POST /api/transfer
-app.post("/api/transfer", (req, res) => {
-  try {
-    const { senderId, recipientId, amount } = req.body;
-    const transferAmount = parseFloat(amount);
-
-    if (isNaN(transferAmount) || transferAmount <= 0) return res.status(400).json({ error: "Invalid amount" });
-
-    const companies = getCompanies();
-    const sender = companies.find(c => c.id === senderId);
-    const recipient = companies.find(c => c.id === recipientId || c.cardNumber === recipientId || c.company.toLowerCase() === recipientId.toLowerCase());
-
-    if (!sender) return res.status(404).json({ error: "Sender not found" });
-    if (!recipient) return res.status(404).json({ error: "Recipient not found" });
-    if (sender.locked) return res.status(403).json({ error: "Sender wallet is locked" });
-
-    if (sender.balance < transferAmount) return res.status(400).json({ error: "Insufficient funds" });
-
-    sender.balance -= transferAmount;
-    recipient.balance += transferAmount;
-
-    // Auto-level up for both sender and recipient based on their balances
-    const senderOldLevel = sender.level || 0;
-    const recipientOldLevel = recipient.level || 0;
-
-    let senderNewLevel = Math.min(100, Math.floor(sender.balance / 10000));
-    let recipientNewLevel = Math.min(100, Math.floor(recipient.balance / 10000));
-
-    // Apply level maintenance cost if leveling up
-    if (senderNewLevel > senderOldLevel) {
-      const senderLevelCost = senderNewLevel * 100;
-      sender.balance -= senderLevelCost;
-    }
-
-    if (recipientNewLevel > recipientOldLevel) {
-      const recipientLevelCost = recipientNewLevel * 100;
-      recipient.balance -= recipientLevelCost;
-    }
-
-    // Re-check levels after cost deduction
-    senderNewLevel = Math.min(100, Math.floor(sender.balance / 10000));
-    recipientNewLevel = Math.min(100, Math.floor(recipient.balance / 10000));
-
-    sender.level = senderNewLevel;
-    recipient.level = recipientNewLevel;
-
-    updateCompanyStats(sender);
-    updateCompanyStats(recipient);
-
-    logAction(sender.id, "transfer_sent", { amount: transferAmount, to: recipient.company });
-
-    saveCompanies(companies);
-    res.json({ success: true, newBalance: sender.balance });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Transfer failed" });
-  }
-});
-
-// PARTNERSHIP ROUTES
-
-// Request Partnership
-app.post("/api/partners/request", (req, res) => {
-  const { requesterId, targetCompanyId } = req.body;
-  const companies = getCompanies();
-  const requester = companies.find(c => c.id === requesterId);
-  const target = companies.find(c => c.id === targetCompanyId);
-
-  if (!requester || !target) return res.status(404).json({ error: "Company not found" });
-  if (requester.id === target.id) return res.status(400).json({ error: "Cannot partner with yourself" });
-
-  if (!target.partnershipRequests) target.partnershipRequests = [];
-
-  // Check if already partners
-  if (requester.partners && requester.partners.includes(target.id)) {
-    return res.status(400).json({ error: "Already partners" });
-  }
-
-  // Check if already requested
-  if (target.partnershipRequests.find(r => r.fromId === requesterId)) {
-    return res.status(400).json({ error: "Request already sent" });
-  }
-
-  target.partnershipRequests.push({
-    fromId: requester.id,
-    fromName: requester.company,
-    timestamp: Date.now()
-  });
-
-  saveCompanies(companies);
-  res.json({ success: true, message: "Partnership request sent" });
-});
-
-// Accept Partnership
-app.post("/api/partners/accept", (req, res) => {
-  const { acceptorId, requesterId } = req.body;
-  const companies = getCompanies();
-  const acceptor = companies.find(c => c.id === acceptorId);
-  const requester = companies.find(c => c.id === requesterId);
-
-  if (!acceptor || !requester) return res.status(404).json({ error: "Company not found" });
-
-  // Remove request
-  if (acceptor.partnershipRequests) {
-    acceptor.partnershipRequests = acceptor.partnershipRequests.filter(r => r.fromId !== requesterId);
-  }
-
-  // Add to partners list for BOTH
-  if (!acceptor.partners) acceptor.partners = [];
-  if (!requester.partners) requester.partners = [];
-
-  if (!acceptor.partners.includes(requesterId)) acceptor.partners.push(requesterId);
-  if (!requester.partners.includes(acceptorId)) requester.partners.push(acceptorId);
-
-  updateCompanyStats(acceptor);
-  updateCompanyStats(requester);
-
-  saveCompanies(companies);
-  res.json({ success: true, message: "Partnership accepted" });
-});
-
-// Freeze Account (Toggle)
-app.post("/api/account/freeze", (req, res) => {
-  const { companyId, locked } = req.body;
-  const companies = getCompanies();
-  const company = companies.find(c => c.id === companyId);
-
-  if (!company) return res.status(404).json({ error: "Company not found" });
-
-  company.locked = locked;
-  saveCompanies(companies);
-
-  res.json({ success: true, locked: company.locked });
-});
-
-
-// ADMIN ROUTES
-app.get("/api/admin/data", (req, res) => {
-  const companies = getCompanies();
-  let logs = [];
-  if (fs.existsSync(logsFile)) logs = JSON.parse(fs.readFileSync(logsFile, 'utf8'));
-
-  // Enhance company data for admin
-  const enhanced = companies.map(c => {
-    updateCompanyStats(c); // ensure stats are fresh in display
-    return c;
-  });
-
-  res.json({ companies: enhanced, logs });
-});
-
-app.post("/api/admin/lock", (req, res) => {
-  const { targetId, locked } = req.body;
-  const companies = getCompanies();
-  const target = companies.find(c => c.id === targetId);
-  if (!target) return res.status(404).json({ error: "Target not found" });
-  target.locked = locked;
-  saveCompanies(companies);
-  res.json({ success: true, locked: target.locked });
-});
-
-// DELETE /companies/:id (Delete company)
-app.delete("/companies/:id", (req, res) => {
-  try {
-    const companies = getCompanies();
-    const companyIndex = companies.findIndex(c => c.id === req.params.id);
-
-    if (companyIndex === -1) return res.status(404).json({ error: "Company not found" });
-
-    const deletedCompany = companies.splice(companyIndex, 1)[0];
-    saveCompanies(companies);
-
-    logAction(deletedCompany.id, "company_deleted", { company: deletedCompany.company });
-
-    res.json({ success: true, message: "Company deleted" });
-  } catch (err) {
-    console.error("Error deleting company:", err);
-    res.status(500).json({ error: "Failed to delete company" });
-  }
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(session({
+  secret: 'money-game-secret-123',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
+// Static files
+app.use(express.static('public'));
+app.use('/js', express.static('js'));
+app.use('/css', express.static('css'));
+
+// Auth Middleware
+const authenticate = (req, res, next) => {
+  if (req.session.userId) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
+// ======= AUTH ROUTES =======
+
+app.post('/api/auth/signup', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const stmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+    const info = stmt.run(username, hashedPassword);
+
+    // Create initial company for new user
+    const companyStmt = db.prepare('INSERT INTO companies (user_id, name, income_per_click, level, upgrade_cost) VALUES (?, ?, ?, ?, ?)');
+    companyStmt.run(info.lastInsertRowid, `${username}'s Startup`, 1.5, 1, 100);
+
+    res.json({ success: true });
+  } catch (err) {
+    if (err.message.includes('UNIQUE constraint failed')) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  req.session.userId = user.id;
+  req.session.username = user.username;
+  res.json({ success: true });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ success: true });
+});
+
+app.get('/api/auth/me', (req, res) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Not logged in' });
+  const user = db.prepare('SELECT id, username, balance, total_earned, level, multiplier_value, multiplier_until FROM users WHERE id = ?').get(req.session.userId);
+  res.json(user);
+});
+
+// ======= GAME ROUTES =======
+
+app.get('/api/game/profile', authenticate, (req, res) => {
+  const userId = req.session.userId;
+  const user = db.prepare('SELECT balance, total_earned, level, multiplier_value, multiplier_until FROM users WHERE id = ?').get(userId);
+  const companies = db.prepare('SELECT * FROM companies WHERE user_id = ?').all(userId);
+
+  // Check if multiplier expired
+  let currentMultiplier = 1;
+  if (user.multiplier_until > Date.now()) {
+    currentMultiplier = user.multiplier_value;
+  }
+
+  res.json({ ...user, companies, currentMultiplier });
+});
+
+app.post('/api/game/click', authenticate, (req, res) => {
+  const userId = req.session.userId;
+  const user = db.prepare('SELECT balance, total_earned, level, multiplier_value, multiplier_until FROM users WHERE id = ?').get(userId);
+  const companies = db.prepare('SELECT * FROM companies WHERE user_id = ?').all(userId);
+
+  // Calculate base income from companies
+  let incomePerClick = 0;
+  companies.forEach(c => {
+    incomePerClick += c.income_per_click;
+  });
+
+  // Add base level bonus
+  incomePerClick += user.level * 0.5;
+
+  // Apply multiplier
+  let multiplier = 1;
+  if (user.multiplier_until > Date.now()) {
+    multiplier = user.multiplier_value;
+  }
+  const finalAmount = incomePerClick * multiplier;
+
+  // Update user
+  const newBalance = user.balance + finalAmount;
+  const newTotalEarned = user.total_earned + finalAmount;
+
+  // Level formula: Level = floor(sqrt(total_earned / 100))
+  const newLevel = Math.max(user.level, Math.floor(Math.sqrt(newTotalEarned / 100)) + 1);
+
+  db.prepare('UPDATE users SET balance = ?, total_earned = ?, level = ? WHERE id = ?')
+    .run(newBalance, newTotalEarned, newLevel, userId);
+
+  res.json({
+    added: finalAmount,
+    balance: newBalance,
+    level: newLevel,
+    totalEarned: newTotalEarned,
+    leveledUp: newLevel > user.level
+  });
+});
+
+app.post('/api/game/upgrade-company', authenticate, (req, res) => {
+  const { companyId } = req.body;
+  const userId = req.session.userId;
+
+  const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+  const company = db.prepare('SELECT * FROM companies WHERE id = ? AND user_id = ?').get(companyId, userId);
+
+  if (!company) return res.status(404).json({ error: 'Company not found' });
+  if (user.balance < company.upgrade_cost) return res.status(400).json({ error: 'Insufficient funds' });
+
+  const newBalance = user.balance - company.upgrade_cost;
+  const newLevel = company.level + 1;
+  const newIncome = company.income_per_click * 1.5;
+  const newCost = company.upgrade_cost * 2;
+
+  db.prepare('UPDATE users SET balance = ? WHERE id = ?').run(newBalance, userId);
+  db.prepare('UPDATE companies SET level = ?, income_per_click = ?, upgrade_cost = ? WHERE id = ?')
+    .run(newLevel, newIncome, newCost, companyId);
+
+  res.json({ success: true, newBalance, newLevel, newIncome, newCost });
+});
+
+app.post('/api/game/buy-company', authenticate, (req, res) => {
+  const { name } = req.body;
+  const userId = req.session.userId;
+  const cost = 500; // Fixed cost for new company
+
+  const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+  if (user.balance < cost) return res.status(400).json({ error: 'Insufficient funds' });
+
+  const newBalance = user.balance - cost;
+  db.prepare('UPDATE users SET balance = ? WHERE id = ?').run(newBalance, userId);
+
+  const stmt = db.prepare('INSERT INTO companies (user_id, name, income_per_click, level, upgrade_cost) VALUES (?, ?, ?, ?, ?)');
+  stmt.run(userId, name, 5, 1, 300);
+
+  res.json({ success: true, newBalance });
+});
+
+// ======= AD SYSTEM =======
+
+app.post('/api/game/ad-start', authenticate, (req, res) => {
+  const userId = req.session.userId;
+  db.prepare('INSERT OR REPLACE INTO ad_sessions (user_id, start_time, status) VALUES (?, ?, ?)')
+    .run(userId, Date.now(), 'WATCHING');
+  res.json({ success: true });
+});
+
+app.post('/api/game/ad-complete', authenticate, (req, res) => {
+  const userId = req.session.userId;
+  const adSession = db.prepare('SELECT * FROM ad_sessions WHERE user_id = ?').get(userId);
+
+  if (!adSession || adSession.status !== 'WATCHING') {
+    return res.status(400).json({ error: 'Invalid ad session' });
+  }
+
+  const duration = Date.now() - adSession.start_time;
+  if (duration < 28000) { // Tolerant of 2s
+    return res.status(400).json({ error: 'Ad not completed (too fast)' });
+  }
+
+  // Grant x5 reward for 2 minutes
+  const multiplierValue = 5;
+  const multiplierUntil = Date.now() + (2 * 60 * 1000);
+
+  db.prepare('UPDATE users SET multiplier_value = ?, multiplier_until = ? WHERE id = ?')
+    .run(multiplierValue, multiplierUntil, userId);
+
+  db.prepare('DELETE FROM ad_sessions WHERE user_id = ?').run(userId);
+
+  res.json({ success: true, multiplierUntil });
+});
+
+// Serve frontend and redirect if not logged in
+app.get('/', (req, res) => {
+  if (req.session.userId) {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+  } else {
+    res.redirect('/login.html');
+  }
+});
+
+// Admin endpoint (simple)
+app.get('/api/admin/users', authenticate, (req, res) => {
+  // Basic check for admin (could be improved)
+  if (req.session.username !== 'admin') return res.status(403).json({ error: 'Access denied' });
+  const users = db.prepare('SELECT id, username, level, balance FROM users').all();
+  res.json(users);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
