@@ -8,6 +8,7 @@
   <title>Money Game | Build Your Business & Earn Money</title>
   <meta name="description" content="Manage your business empire, earn money, and grow your company in Money Game.">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/game-theme.css">
   <link rel="manifest" href="/manifest.json">
 </head>
 
@@ -26,6 +27,7 @@
       </div>
       <ul class="nav-menu">
         <li><a href="home.html" class="active">Home</a></li>
+        <li><a href="javascript:openTutorial()">Help / Tutorial</a></li>
         <li><a href="paybal-wallet.html">Wallet</a></li>
         <li><a href="javascript:reloadPage()" class="reload-btn">🔄 Reload</a></li>
         <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
@@ -167,6 +169,8 @@
     <div id="notificationList" style="padding: 10px;"></div>
   </div>
 
+  <script src="js/game-core.js"></script>
+  <script src="js/onboarding.js"></script>
   <script src="js/home.js"></script>
   <script>
     // Re-implement inline scripts to ensure they work with new CSS
@@ -258,6 +262,19 @@
       setTimeout(() => {
         location.reload();
       }, 500);
+    }
+
+    function openTutorial() {
+      try {
+        if (window.onboardingSystem) {
+          window.onboardingSystem.reset();
+          window.onboardingSystem.show();
+        } else {
+          alert('Tutorial system is loading. Please try again in a moment.');
+        }
+      } catch (e) {
+        console.error('Failed to open tutorial', e);
+      }
     }
   </script>
   <script src="/js/ad-system.js"></script>

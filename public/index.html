@@ -14,6 +14,7 @@
   <meta name="keywords" content="money game, simulation game, finance game, strategy game, browser game" />
 
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/game-theme.css" />
   <link rel="icon" href="public/images/logo-money.webp" />
   <link rel="canonical" href="https://money-game.up.railway.app/">
   <link rel="manifest" href="/manifest.json">
@@ -57,6 +58,7 @@
       <a href="/" class="nav-logo">💰 Money Game</a>
       <ul class="nav-menu">
         <li><a href="/" class="active">Game</a></li>
+        <li><a href="javascript:openTutorial()">Help / Tutorial</a></li>
         <li><a href="javascript:reloadPage()" class="reload-btn">🔄 Reload</a></li>
         <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
       </ul>
@@ -131,7 +133,13 @@
     </div>
   </div>
 
+  <script src="js/game-core.js"></script>
+  <script src="js/onboarding.js"></script>
   <script src="js/game-v2.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/offline-earnings.js"></script>
+  <script src="js/daily-rewards.js"></script>
+  <script src="js/idle-gameplay.js"></script>
   <script>
     function reloadPage() {
       const reloadBtn = document.querySelector('.reload-btn');
@@ -147,6 +155,149 @@
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/login.html';
     }
+
+    function openTutorial() {
+      try {
+        if (window.onboardingSystem) {
+          // Allow replay by resetting local state
+          window.onboardingSystem.reset();
+          window.onboardingSystem.show();
+        } else {
+          alert('Tutorial system is loading. Please try again in a moment.');
+        }
+      } catch (e) {
+        console.error('Failed to open tutorial', e);
+      }
+    }
+
+    // Offline earnings popup
+    function showOfflineEarningsModal(info) {
+      if (!info || !info.amount || info.amount <= 0) return;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'offline-earnings-modal';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.background = 'rgba(10, 14, 39, 0.85)';
+      overlay.style.backdropFilter = 'blur(10px)';
+      overlay.style.zIndex = '9999';
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 0.3s ease-out';
+
+      const card = document.createElement('div');
+      card.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 40%, #0f172a 100%)';
+      card.style.borderRadius = '20px';
+      card.style.padding = '32px 28px';
+      card.style.maxWidth = '420px';
+      card.style.width = '90%';
+      card.style.color = '#ffffff';
+      card.style.boxShadow = '0 18px 60px rgba(0,0,0,0.5)';
+      card.style.position = 'relative';
+      card.style.overflow = 'hidden';
+
+      card.innerHTML = `
+        <div style="position:absolute; inset:0; opacity:0.15; background-image:
+          radial-gradient(circle at 0 0, rgba(255,255,255,0.3) 0, transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(34,197,94,0.4) 0, transparent 60%);">
+        </div>
+        <div style="position:relative; z-index:1;">
+          <div style="font-size:42px; margin-bottom:12px;">⏱️💰</div>
+          <h2 style="margin:0 0 8px 0; font-size:24px; font-weight:800;">While you were away...</h2>
+          <p style="margin:0 0 18px 0; font-size:15px; opacity:0.9;">
+            Your businesses kept working for you! You earned:
+          </p>
+          <div id="offlineAmountDisplay" style="
+            font-size:34px;
+            font-weight:900;
+            margin-bottom:12px;
+            letter-spacing:0.03em;
+          ">$0.00</div>
+          <p style="margin:0 0 18px 0; font-size:13px; opacity:0.9;">
+            Based on up to <strong>${info.hours || 'several'}</strong> hours of offline progression.
+          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;">
+            <button id="offlineCollectBtn" class="btn btn-primary" style="flex:1; min-width:120px;">
+              Collect Earnings
+            </button>
+            <button id="offlineCloseBtn" class="btn btn-small-secondary" style="min-width:110px;">
+              Maybe Later
+            </button>
+          </div>
+          <p style="margin-top:14px; font-size:12px; opacity:0.85;">
+            Future upgrades will increase your offline cap and passive income rate.
+          </p>
+        </div>
+      `;
+
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+
+      // Fade in
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+      });
+
+      // Animate number if core animations are available
+      const amountElement = document.getElementById('offlineAmountDisplay');
+      const amount = Number(info.amount) || 0;
+      const formatted = amount.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      if (window.Animations && typeof Animations.countUp === 'function') {
+        Animations.countUp(
+          amountElement,
+          0,
+          amount,
+          900
+        );
+      } else {
+        amountElement.textContent = `$${formatted}`;
+      }
+
+      function closeModal() {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 250);
+      }
+
+      document.getElementById('offlineCollectBtn').addEventListener('click', () => {
+        if (window.notifications) {
+          window.notifications.money(
+            `Collected $${formatted} in offline earnings!`,
+            4000
+          );
+        }
+        if (window.soundManager) {
+          window.soundManager.play('money');
+        }
+        closeModal();
+      });
+
+      document.getElementById('offlineCloseBtn').addEventListener('click', closeModal);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+      });
+    }
+
+    // Claim offline earnings once on load
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/api/offline-earnings/claim', { method: 'POST' })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.amount && data.amount > 0) {
+            showOfflineEarningsModal(data);
+          }
+        })
+        .catch(err => {
+          console.warn('Offline earnings claim failed', err);
+        });
+    });
   </script>
 </body>
 

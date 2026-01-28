@@ -190,3 +190,8 @@ document.getElementById('watchAdBtn').addEventListener('click', startAd);
 fetchProfile();
 setInterval(fetchProfile, 10000); // Sync every 10s
 setInterval(updateUI, 1000); // Smooth timer updates
+
+// Heartbeat to keep last_active accurate for offline earnings
+setInterval(() => {
+    fetch('/api/game/heartbeat', { method: 'POST' }).catch(() => {});
+}, 30000);
