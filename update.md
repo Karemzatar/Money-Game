@@ -23,8 +23,5 @@ https://money-game.up.railway.app/
 هذا حرفيًا ستاك Indie Developer كامل 💪
 
 money-game.fun
-money-game.
-money-game.
-money-game.
-money-game.
-money-game.
+
+Google Antalyics ✔️
