@@ -1,11 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Language" content="en" />
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Money Game - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>Money Game 🎮 | Smart Money Simulation Game</title>
+
+  <meta name="description" content="Money Game is a fun and interactive simulation game where you manage money, make decisions, and grow your virtual wealth." />
+
+  <meta name="robots" content="index, follow" />
+
+  <!-- Optional keywords (not very important nowadays, but ok) -->
+  <meta name="keywords" content="money game, simulation game, finance game, strategy game, browser game" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="public/images/logo-money.webp" />
+  <link rel="canonical" href="https://money-game.up.railway.app/">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/public/images/logo-money.webp">
+
+
+  <!-- Open Graph (Facebook, Discord, WhatsApp) -->
+  <meta property="og:title" content="Money Game 🎮 | Smart Money Simulation Game" />
+  <meta property="og:description" content="Play Money Game and test your financial decisions in a fun money simulation game." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://money-game.up.railway.app/"/>
+  <meta property="og:image" content="https://money-game.up.railway.app/public/images/logo-money.webp"/>
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Money Game 🎮" />
+  <meta name="twitter:description" content="A fun money simulation game ou can play in your browser." />
+  <meta name="twitter:image" content="https://money-game.up.railway.app/public/images/logo-money.webp"/>
+
+  <!-- Schema: Game / WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Money Game",
+    "description": "A browser-based money simulation game where players manage finances and make strategic decisions.",
+    "url": "https://money-game.up.railway.app/",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web",
+    "author": {
+      "@type": "Person",
+      "name": "Karem Zatar"
+    }
+  }
+  </script>
 </head>
 
 <body>
@@ -14,6 +57,7 @@
       <a href="/" class="nav-logo">💰 Money Game</a>
       <ul class="nav-menu">
         <li><a href="/" class="active">Game</a></li>
+        <li><a href="javascript:location.reload()" class="reload-btn">🔄 Reload</a></li>
         <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
       </ul>
     </div>
