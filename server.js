@@ -227,6 +227,56 @@ app.get('/api/admin/users', authenticate, (req, res) => {
   res.json(users);
 });
 
+// ======= MISSING ENDPOINTS =======
+
+// Get all companies for login page
+app.get('/api/companies', (req, res) => {
+  try {
+    const companies = db.prepare('SELECT id, name, manager, balance, level, image_url FROM companies ORDER BY balance DESC').all();
+    res.json(companies);
+  } catch (error) {
+    console.error('Error fetching companies:', error);
+    res.status(500).json({ error: 'Failed to fetch companies' });
+  }
+});
+
+// Create new company (for login page selection)
+app.post('/api/create', (req, res) => {
+  const { company, manager, imageUrl } = req.body;
+  
+  if (!company || !manager) {
+    return res.status(400).json({ error: 'Company name and manager are required' });
+  }
+
+  try {
+    // Create a new user for this company
+    const hashedPassword = bcrypt.hashSync('default123', 10);
+    const userStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+    const userInfo = userStmt.run(manager, hashedPassword);
+    
+    // Create the company
+    const companyStmt = db.prepare('INSERT INTO companies (user_id, name, manager, income_per_click, level, upgrade_cost, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    const companyInfo = companyStmt.run(
+      userInfo.lastInsertRowid,
+      company,
+      manager,
+      1.5,
+      1,
+      100,
+      imageUrl || 'https://via.placeholder.com/200'
+    );
+    
+    res.json({ 
+      success: true, 
+      companyId: companyInfo.lastInsertRowid,
+      message: 'Company created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating company:', error);
+    res.status(500).json({ error: 'Failed to create company' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

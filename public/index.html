@@ -57,7 +57,7 @@
       <a href="/" class="nav-logo">💰 Money Game</a>
       <ul class="nav-menu">
         <li><a href="/" class="active">Game</a></li>
-        <li><a href="javascript:location.reload()" class="reload-btn">🔄 Reload</a></li>
+        <li><a href="javascript:reloadPage()" class="reload-btn">🔄 Reload</a></li>
         <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
       </ul>
     </div>
@@ -133,6 +133,16 @@
 
   <script src="js/game-v2.js"></script>
   <script>
+    function reloadPage() {
+      const reloadBtn = document.querySelector('.reload-btn');
+      reloadBtn.innerHTML = '⏳ Reloading...';
+      reloadBtn.style.pointerEvents = 'none';
+      
+      setTimeout(() => {
+        location.reload();
+      }, 500);
+    }
+    
     async function logout() {
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/login.html';
