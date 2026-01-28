@@ -521,32 +521,41 @@ app.post(
     manager: { required: true, type: 'string', minLength: 3, maxLength: 50 },
   }),
   asyncHandler(async (req, res) => {
-    const { company, manager, imageUrl } = req.body;
+    try {
+      const { company, manager, imageUrl } = req.body;
 
-    const hashedPassword = await bcrypt.hash('default123', 10);
-    const userInfo = db.prepare('INSERT INTO users (username, password, last_active) VALUES (?, ?, ?)').run(
-      manager,
-      hashedPassword,
-      Date.now()
-    );
+      log('Creating new company', { company, manager });
 
-    db.prepare('INSERT INTO companies (user_id, name, income_per_click, level, upgrade_cost) VALUES (?, ?, ?, ?, ?)').run(
-      userInfo.lastInsertRowid,
-      company,
-      gameLogic.GAME_CONFIG.BASE_INCOME_PER_CLICK,
-      1,
-      100
-    );
+      const hashedPassword = await bcrypt.hash('default123', 10);
+      const userInfo = db.prepare('INSERT INTO users (username, password, last_active) VALUES (?, ?, ?)').run(
+        manager,
+        hashedPassword,
+        Date.now()
+      );
 
-    db.prepare('INSERT INTO player_stats (user_id) VALUES (?)').run(userInfo.lastInsertRowid);
+      log('User created', { userId: userInfo.lastInsertRowid, manager });
 
-    log('Company created', { companyId: userInfo.lastInsertRowid, company, manager });
+      db.prepare('INSERT INTO companies (user_id, name, income_per_click, level, upgrade_cost) VALUES (?, ?, ?, ?, ?)').run(
+        userInfo.lastInsertRowid,
+        company,
+        gameLogic.GAME_CONFIG.BASE_INCOME_PER_CLICK,
+        1,
+        100
+      );
 
-    res.json({
-      success: true,
-      companyId: userInfo.lastInsertRowid,
-      message: 'Company created successfully',
-    });
+      log('Company created', { companyId: userInfo.lastInsertRowid, company });
+
+      db.prepare('INSERT INTO player_stats (user_id) VALUES (?)').run(userInfo.lastInsertRowid);
+
+      res.json({
+        success: true,
+        companyId: userInfo.lastInsertRowid,
+        message: 'Company created successfully',
+      });
+    } catch (error) {
+      log('Error in /api/create', { error: error.message, stack: error.stack }, true);
+      throw error;
+    }
   })
 );
 

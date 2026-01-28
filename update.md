@@ -21,3 +21,10 @@ https://money-game.up.railway.app/
 ✔️ 50 GB SSD
 
 هذا حرفيًا ستاك Indie Developer كامل 💪
+
+money-game.fun
+money-game.
+money-game.
+money-game.
+money-game.
+money-game.
