@@ -1,5 +1,5 @@
 
-const db = require('../db');
+const db = require('../db/index.js');
 
 class UserService {
     static async findById(id) {
@@ -11,7 +11,7 @@ class UserService {
     }
 
     static async create(username, passwordHash) {
-        const config = require('../config/index');
+        const config = require('../config/index.js');
         const stmt = db.prepare('INSERT INTO users (username, password, balance, last_active) VALUES (?, ?, ?, ?)');
         const result = stmt.run(username, passwordHash, config.GAME.STARTING_BALANCE, Date.now());
 

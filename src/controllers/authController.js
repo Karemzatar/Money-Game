@@ -1,7 +1,7 @@
 
 const bcrypt = require('bcryptjs');
-const UserService = require('../services/userService');
-const GameService = require('../services/gameService');
+const UserService = require('../services/userService.js');
+const GameService = require('../services/gameService.js');
 
 class AuthController {
     static async register(req, res) {
@@ -19,7 +19,7 @@ class AuthController {
             // Create initial company as bonus
             await GameService.createCompany(userId, `${username}'s Startup`, true); // Free logic needs bypass handling or simple insert
             // Actually, let's just insert a free starter company directly to avoid paying
-            const db = require('../db');
+            const db = require('../db/index.js');
             db.prepare(`
                 INSERT INTO companies (user_id, name, income_per_click, upgrade_cost) 
                 VALUES (?, ?, ?, ?)

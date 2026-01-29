@@ -1,6 +1,6 @@
 
-const db = require('../db');
-const UserService = require('../services/userService');
+const db = require('../db/index.js');
+const UserService = require('../services/userService.js');
 
 class AdminController {
     static async getDashboardData(req, res) {

@@ -1,6 +1,6 @@
 
-const db = require('../db');
-const config = require('../config/index');
+const db = require('../db/index.js');
+const config = require('../config/index.js');
 
 class GameService {
     /**

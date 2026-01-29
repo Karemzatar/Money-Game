@@ -1,10 +1,10 @@
 
 const express = require('express');
 const router = express.Router();
-const AuthController = require('../controllers/authController');
-const GameController = require('../controllers/gameController');
+const AuthController = require('../controllers/authController.js');
+const GameController = require('../controllers/gameController.js');
 
-const auth = require('../middlewares/auth');
+const auth = require('../middlewares/auth.js');
 
 // Auth
 router.post('/auth/signup', AuthController.register);
@@ -13,13 +13,13 @@ router.post('/auth/logout', AuthController.logout);
 router.get('/auth/me', AuthController.me);
 
 // Admin
-const AdminController = require('../controllers/adminController');
+const AdminController = require('../controllers/adminController.js');
 router.get('/admin/data', auth, AdminController.getDashboardData);
 router.get('/admin/dashboard', auth, AdminController.getDashboardStats);
 router.post('/admin/lock', auth, AdminController.toggleLock);
 
 // Legacy Compatibility
-const LegacyController = require('../controllers/legacyController');
+const LegacyController = require('../controllers/legacyController.js');
 router.get('/companies', LegacyController.getCompaniesList);
 router.post('/partners/request', auth, LegacyController.requestPartnership);
 router.post('/partners/accept', auth, LegacyController.acceptPartnership);
@@ -35,7 +35,7 @@ router.post('/game/company', auth, GameController.buyCompany);
 router.get('/companies', GameController.searchCompanies);
 
 // Market
-const MarketController = require('../controllers/marketController');
+const MarketController = require('../controllers/marketController.js');
 router.get('/market/lands', auth, MarketController.getLands);
 router.post('/market/buy-land', auth, MarketController.buyLand);
 router.get('/market/shares', auth, MarketController.getShares);

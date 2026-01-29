@@ -3,8 +3,8 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const config = require(path.join(__dirname, 'config/index'));
-const apiRoutes = require('./routes/api');
+const config = require('./config/index.js');
+const apiRoutes = require('./routes/api.js');
 
 const app = express();
 
@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api', apiRoutes);
 
 // Legacy Data Route
-const LegacyController = require('./controllers/legacyController');
+const LegacyController = require('./controllers/legacyController.js');
 app.get('/data/:id', LegacyController.getCompanyData);
 
 // Fallback for SPA (if we go that route, otherwise serve pages directly)
@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
     if (req.session.userId) {
         res.sendFile(path.join(__dirname, '../public/home.html'));
     } else {
-        res.sendFile(path.join(__dirname, '../public/index.html')); // Login page
+        res.sendFile(path.join(__dirname, '../public/login.html')); // Login page
     }
 });
 

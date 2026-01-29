@@ -1,5 +1,5 @@
 
-const db = require('../db');
+const db = require('../db/index.js');
 
 class LegacyController {
     static getCompaniesList(req, res) {

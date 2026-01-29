@@ -1,6 +1,6 @@
 
-const GameService = require('../services/gameService');
-const db = require('../db');
+const GameService = require('../services/gameService.js');
+const db = require('../db/index.js');
 
 class GameController {
     static async getProfile(req, res) {
