@@ -534,6 +534,12 @@ app.post(
 
       log('Creating new company', { company, manager });
 
+      // Check if user exists
+      const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(manager);
+      if (existingUser) {
+        return handleError(res, 400, 'Username already taken');
+      }
+
       const hashedPassword = await bcrypt.hash('default123', 10);
       const userInfo = db.prepare('INSERT INTO users (username, password, last_active) VALUES (?, ?, ?)').run(
         manager,

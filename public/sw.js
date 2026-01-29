@@ -1,12 +1,23 @@
 const CACHE_NAME = 'money-game-v1';
 const ASSETS_TO_CACHE = [
     '/',
-    '/index.html', // Login page
-    '/home.html',  // Dashboard
+    '/index.html',
+    '/home.html',
+    '/login.html',
+    '/signup.html',
     '/paybal-wallet.html',
     '/css/style.css',
+    '/css/game-theme.css',
     '/js/login.js',
     '/js/home.js',
+    '/js/game-core.js',
+    '/js/game-v2.js',
+    '/js/onboarding.js',
+    '/js/tutorial.js',
+    '/js/offline-earnings.js',
+    '/js/daily-rewards.js',
+    '/js/idle-gameplay.js',
+    '/js/ad-system.js',
     '/images/icon.svg',
     '/manifest.json'
 ];
