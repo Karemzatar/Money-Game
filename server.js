@@ -411,6 +411,14 @@ app.post('/api/game/tutorial-skip', authenticate, asyncHandler((req, res) => {
   res.json({ success: true });
 }));
 
+app.post('/api/game/heartbeat', authenticate, asyncHandler((req, res) => {
+  const userId = req.session.userId;
+  // Update last_active so online time isn't counted as offline time (unless desired)
+  // For now, we update it to ensure offline earnings track from when user actually leaves.
+  db.prepare('UPDATE users SET last_active = ? WHERE id = ?').run(Date.now(), userId);
+  res.json({ success: true });
+}));
+
 // ======= DAILY REWARDS =======
 
 app.post('/api/game/claim-daily-reward', authenticate, asyncHandler((req, res) => {
@@ -558,6 +566,52 @@ app.post(
     }
   })
 );
+
+// ======= DATA ENDPOINTS (for legacy compatibility) =======
+
+app.get('/data/:id', asyncHandler((req, res) => {
+  const { id } = req.params;
+
+  const company = db.prepare('SELECT * FROM companies WHERE id = ?').get(id);
+
+  if (!company) {
+    return handleError(res, 404, 'Company not found');
+  }
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(company.user_id);
+
+  res.json({
+    id: company.id,
+    company: company.name,
+    manager: user.username,
+    balance: user.balance,
+    level: user.level,
+    cardNumber: '1234567890123456',
+    createdAt: company.created_at,
+    imageUrl: company.image_url,
+    sharePrice: (user.level * 10) + 50,
+    healthScore: Math.min(100, 80 + (user.level * 2)),
+    partners: [],
+  });
+}));
+
+// ======= COMPANY ROUTES =======
+
+app.delete('/companies/:id', asyncHandler((req, res) => {
+  const { id } = req.params;
+
+  const company = db.prepare('SELECT user_id FROM companies WHERE id = ?').get(id);
+
+  if (!company) {
+    return handleError(res, 404, 'Company not found');
+  }
+
+  db.prepare('DELETE FROM companies WHERE id = ?').run(id);
+
+  log('Company deleted', { companyId: id });
+
+  res.json({ success: true, message: 'Company deleted' });
+}));
 
 // ======= FRONTEND ROUTES =======
 
