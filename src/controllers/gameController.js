@@ -42,6 +42,44 @@ class GameController {
         }
     }
 
+    static buyCompany(req, res) {
+        try {
+            const { companyName } = req.body;
+            if (!companyName) return res.status(400).json({ error: 'Company name required' });
+
+            const db = require('../db/index.js');
+            const userId = req.session.userId;
+
+            // Simple creation with default values
+            const result = db.prepare(`
+                INSERT INTO companies (user_id, name, income_per_click, upgrade_cost, level)
+                VALUES (?, ?, ?, ?, ?)
+            `).run(userId, companyName, 1.5, 50, 1);
+
+            res.json({ success: true, companyId: result.lastInsertRowid });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
+    static searchCompanies(req, res) {
+        try {
+            const { query } = req.query;
+            const db = require('../db/index.js');
+
+            let companies;
+            if (query) {
+                companies = db.prepare('SELECT * FROM companies WHERE name LIKE ? LIMIT 50').all(`%${query}%`);
+            } else {
+                companies = db.prepare('SELECT * FROM companies LIMIT 50').all();
+            }
+
+            res.json({ success: true, companies });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+
     static async transferFunds(req, res) {
         const { recipientId, amount } = req.body;
         const senderId = req.session.userId;
