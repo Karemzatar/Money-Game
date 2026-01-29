@@ -4,11 +4,7 @@ const router = express.Router();
 const AuthController = require('../controllers/authController');
 const GameController = require('../controllers/gameController');
 
-// Middleware check
-const auth = (req, res, next) => {
-    if (req.session && req.session.userId) return next();
-    res.status(401).json({ error: 'Unauthorized' });
-};
+const auth = require('../middlewares/auth');
 
 // Auth
 router.post('/auth/signup', AuthController.register);

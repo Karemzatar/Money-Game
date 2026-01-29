@@ -3,178 +3,98 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a0e27">
-  <title>Money Game | Build Your Business & Earn Money</title>
-  <meta name="description" content="Manage your business empire, earn money, and grow your company in Money Game.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <title>Anti-Gravity Clicker</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/game-theme.css">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="css/game-ui.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <a href="home.html" class="nav-logo">💰 Money Game</a>
-      <div class="nav-icons">
-        <button class="icon-btn" id="notificationBtn" title="Notifications">
-          🔔
-          <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-        </button>
-        <button class="icon-btn" onclick="location.href='netfactions.html'" title="Netfactions System">🌐</button>
-        <button class="icon-btn" onclick="location.href='settings.html'" title="Settings">⚙️</button>
+
+  <div id="game-viewport">
+
+    <!-- Top HUD -->
+    <div class="hud-top floating">
+      <div class="resource-pill" id="balance-pill">
+        <i class="fas fa-coins resource-icon" style="color: #ffd700;"></i>
+        <div class="resource-value" id="balance-display">$0</div>
       </div>
-      <ul class="nav-menu">
-        <li><a href="home.html" class="active">Home</a></li>
-        <li><a href="javascript:openTutorial()">Help / Tutorial</a></li>
-        <li><a href="paybal-wallet.html">Wallet</a></li>
-        <li><a href="javascript:reloadPage()" class="reload-btn">🔄 Reload</a></li>
-        <li><a href="javascript:logout()" class="logout-btn">Logout</a></li>
-      </ul>
+
+      <div class="resource-pill">
+        <i class="fas fa-bolt resource-icon" style="color: #00f3ff;"></i>
+        <div class="resource-value" id="income-display">0/s</div>
+      </div>
+
+      <div class="resource-pill">
+        <i class="fas fa-star resource-icon" style="color: #f093fb;"></i>
+        <div class="resource-value" id="level-display">LVL 1</div>
+      </div>
     </div>
-  </nav>
 
-  <!-- Main Container -->
-  <div class="container">
-    <!-- Search Box -->
-    <input type="text" id="companySearch" placeholder="🔍 Search companies..." onkeyup="searchCompanies()">
-    <div id="searchResults" class="card-base" style="display:none; padding: 10px;"></div>
+    <!-- Notification Toast Area -->
+    <div id="toast-area"
+      style="position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 500; width: 80%;"></div>
 
-
-    <!-- Rewarded Ad Banner -->
-    <div id="rewardAd"
-      style="margin: 20px 0; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
-      <!-- Background Pattern -->
-      <div
-        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 20px 20px;">
-      </div>
-
-      <!-- Content -->
-      <div style="position: relative; z-index: 1;">
-        <div style="margin-bottom: 20px;">
-          <div style="font-size: 40px; margin-bottom: 10px;">🎥</div>
-          <h3 style="color: #fff; margin: 0 0 8px 0; font-size: 22px; font-weight: 700;">Watch & Earn</h3>
-          <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">Complete a 30-second ad to earn rewards
-          </p>
-        </div>
-
-        <div
-          style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.2);">
-          <p
-            style="color: rgba(255,255,255,0.8); margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
-            Reward Amount</p>
-          <p
-            style="color: #fff; margin: 0; font-size: 42px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
-            $<span id="rewardAmount">50</span></p>
-        </div>
-
-        <button onclick="startRewardAd()"
-          style="background: #fff; color: #667eea; border: none; padding: 15px 40px; font-weight: 700; font-size: 16px; border-radius: 10px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 300px; margin: 10px auto; display: block;">
-          <span style="font-size: 18px;">▶</span> Watch Ad (30s)
-        </button>
-
-        <div id="adTimer"
-          style="display: none; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-          <p style="color: #fff; margin: 0; font-size: 16px; font-weight: 600;">⏳ Please wait...</p>
-          <p style="color: #ffd700; margin: 8px 0 0 0; font-size: 32px; font-weight: 800;"><span
-              id="timerSeconds">30</span>s</p>
-        </div>
-
-        <div id="adCooldown"
-          style="display: none; margin-top: 15px; background: rgba(255,215,0,0.15); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3);">
-          <p style="color: #ffd700; margin: 0; font-size: 14px; font-weight: 600;">⏰ Next ad in: <span id="cooldownTime"
-              style="font-weight: 800;"></span></p>
+    <!-- Main Game Area (Clicker) -->
+    <div class="game-area">
+      <div class="clicker-object" id="main-clicker">
+        <div class="clicker-inner">
+          <i class="fas fa-cube fa-4x"
+            style="background: -webkit-linear-gradient(#00f3ff, #667eea); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+          <h3 style="margin-top:20px; color: rgba(255,255,255,0.7);">TAP</h3>
         </div>
       </div>
     </div>
 
-    <!-- Profile Section -->
-    <div class="profile-section">
-      <div class="profile-image">
-        <img id="companyImage" class="company-logo" src="https://via.placeholder.com/200" alt="Company Logo">
-        <h3 id="companyNameSmall" style="color: #333; margin-top: 15px;"></h3>
+    <!-- Panels (Hidden by default, toggled by bottom tabs) -->
+
+    <!-- Companies / Upgrades Panel -->
+    <div id="panel-companies" class="game-panel">
+      <h2 style="margin-bottom: 20px;">Manage Companies</h2>
+      <div style="margin-bottom: 20px;">
+        <button class="btn btn-primary" onclick="window.gameCore.buyCompany()">+ New Company ($500)</button>
       </div>
-      <div class="profile-info">
-        <h2 id="companyName">Company Name</h2>
-        <p><strong>Manager:</strong> <span id="managerName">-</span></p>
-        <p><strong>ID:</strong> <span id="companyId" style="font-family: monospace;">-</span></p>
-        <p><strong>Joined:</strong> <span id="createdDate">-</span></p>
-        <p><strong>Age:</strong> <span id="accountAge">-</span></p>
+      <div id="companies-list">
+        <!-- Injected via JS -->
       </div>
     </div>
 
-    <!-- Visa Card Section -->
-    <div class="visa-card-container">
-      <div class="visa-card" onclick="location.href='paybal-wallet.html'">
-        <div class="card-logo">💳</div>
-        <div class="card-number" id="cardNumber">0000 0000 0000 0000</div>
-        <div class="card-bottom">
-          <div class="card-holder">
-            <small>CARDHOLDER</small>
-            <h3 id="visaCompanyName">Company</h3>
-          </div>
-          <div class="card-brand">VISA <span id="visaTypeDisplay" style="font-size: 14px;">Classic</span></div>
-        </div>
+    <!-- Profile Panel -->
+    <div id="panel-profile" class="game-panel">
+      <h2>Pilot Profile</h2>
+      <div id="profile-stats" style="margin-top: 20px;">
+        <!-- Stats -->
       </div>
-      <div class="card-info">
-        <p><strong>Balance:</strong> <span id="balance"
-            style="color: #4CAF50; font-size: 24px; font-weight: bold;">$0.00</span></p>
-        <p><strong>Tier:</strong> <span id="visaType">Visa Classic</span></p>
-        <p><strong>Share Price:</strong> <span id="sharePrice">$0.00</span></p>
-        <p><strong>Health:</strong> <span id="healthScore">100</span>%</p>
+      <button class="btn btn-secondary" style="margin-top:20px;" onclick="window.gameCore.logout()">Log Out</button>
+    </div>
+
+    <!-- Bottom Dock -->
+    <div class="hud-bottom">
+      <div class="nav-tab active" onclick="window.gameCore.switchTab('home')">
+        <i class="fas fa-home fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Base</div>
+      </div>
+      <div class="nav-tab" onclick="window.gameCore.switchTab('companies')">
+        <i class="fas fa-building fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Corp</div>
+      </div>
+      <div class="nav-tab" onclick="window.gameCore.switchTab('profile')">
+        <i class="fas fa-user-astronaut fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Pilot</div>
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Balance</div>
-        <div class="stat-value" id="totalBalance">$0.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Level</div>
-        <div class="stat-value" id="levelDisplay">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Partners</div>
-        <div class="stat-value" id="partnersCount">0</div>
-      </div>
-    </div>
-
-    <!-- Action Grid -->
-    <div class="action-grid">
-      <button class="btn btn-earn" onclick="earn()">
-        💸 Make Money <br>
-        <small style="opacity: 0.8; font-weight: normal;">(+<span id="earnRate">$2.50</span>)</small>
-      </button>
-      <button class="btn btn-primary" onclick="location.href='company-details.html?id='+companyId">
-        👤 My Profile
-      </button>
-      <button class="btn btn-secondary" onclick="location.href='partners.html'">
-        🤝 Partners
-      </button>
-      <button class="btn btn-primary" onclick="location.href='paybal-wallet.html'">
-        💰 Wallet
-      </button>
-    </div>
   </div>
 
-  <!-- Notification Panel -->
-  <div id="notificationPanel"
-    style="display: none; position: fixed; right: 20px; top: 70px; background: white; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); width: 320px; max-height: 400px; overflow-y: auto; z-index: 99;">
-    <div style="padding: 20px; border-bottom: 1px solid #eee;">
-      <h3 style="margin: 0; font-size: 18px; color: #333;">Notifications</h3>
-    </div>
-    <div id="notificationList" style="padding: 10px;"></div>
-  </div>
-
+  <!-- Scripts -->
   <script src="js/game-core.js"></script>
-  <script src="js/onboarding.js"></script>
-  <script src="js/home.js"></script>
-
-  <script src="/js/ad-system.js"></script>
-  <script src="/js/pwa-setup.js"></script>
+  <script>
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      window.gameCore.init();
+    });
+  </script>
 </body>
 
 </html>

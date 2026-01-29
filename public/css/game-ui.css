@@ -1,0 +1,206 @@
+
+/* ==========================================
+   GAME HUD & ANTI-GRAVITY UI SYSTEM
+   ========================================== */
+
+:root {
+  --hud-bg: rgba(10, 14, 39, 0.95);
+  --hud-border: 1px solid rgba(255, 255, 255, 0.1);
+  --neon-blue: #00f3ff;
+  --neon-green: #0aff0a;
+}
+
+/* Base Game Viewport */
+body {
+  overflow: hidden; /* Prevent scrolling for app-like feel */
+  touch-action: manipulation; /* Disable double-tap zoom on mobile */
+  background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+}
+
+#game-viewport {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+/* Floating Elements Animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Top HUD (Stats) */
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  z-index: 100;
+}
+
+.resource-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.resource-icon {
+  font-size: 20px;
+}
+.resource-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Center Interactive Area */
+.game-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  perspective: 1000px;
+}
+
+/* The Clicker Object */
+.clicker-object {
+  width: 280px;
+  height: 280px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  backdrop-filter: blur(10px);
+  border-radius: 50%; /* Holographic circle or card */
+  border: 2px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 50px rgba(102, 126, 234, 0.2), inset 0 0 20px rgba(102, 126, 234, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.clicker-object:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.4);
+}
+
+.clicker-inner {
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Click Particles */
+.click-particle {
+  position: absolute;
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 24px;
+  color: var(--neon-green);
+  text-shadow: 0 0 10px rgba(0,255,0,0.5);
+  animation: flyUp 1s ease-out forwards;
+  z-index: 1000;
+}
+
+@keyframes flyUp {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+}
+
+/* Bottom Dock */
+.hud-bottom {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px;
+  background: rgba(0,0,0,0.8);
+  border-radius: 20px 20px 0 0;
+  backdrop-filter: blur(10px);
+}
+
+.nav-tab {
+  flex: 1;
+  text-align: center;
+  padding: 15px;
+  color: #888;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 12px;
+}
+.nav-tab.active {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+}
+
+/* Panels */
+.game-panel {
+  display: none;
+  position: absolute;
+  inset: 70px 10px 90px 10px; /* Below top HUD, above bottom HUD */
+  background: rgba(15, 20, 30, 0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px;
+  overflow-y: auto;
+  backdrop-filter: blur(40px);
+  z-index: 200;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-panel.active {
+  display: block;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Upgrade Item */
+.upgrade-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.upgrade-btn {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.upgrade-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
