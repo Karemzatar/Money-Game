@@ -11,7 +11,7 @@ class UserService {
     }
 
     static async create(username, passwordHash) {
-        const config = require('../config');
+        const config = require('../config/index');
         const stmt = db.prepare('INSERT INTO users (username, password, balance, last_active) VALUES (?, ?, ?, ?)');
         const result = stmt.run(username, passwordHash, config.GAME.STARTING_BALANCE, Date.now());
 

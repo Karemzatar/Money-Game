@@ -3,7 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const config = require('./config');
+const config = require(path.join(__dirname, 'config/index'));
 const apiRoutes = require('./routes/api');
 
 const app = express();

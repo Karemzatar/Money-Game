@@ -1,6 +1,6 @@
-
-const app = require('./app');
-const config = require('./config');
+const path = require('path');
+const app = require('./app.js');
+const config = require(path.join(__dirname, 'config/index'));
 
 app.listen(config.PORT, () => {
   console.log(`

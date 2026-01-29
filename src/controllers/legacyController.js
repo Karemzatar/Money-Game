@@ -3,7 +3,6 @@ const db = require('../db');
 
 class LegacyController {
     static getCompaniesList(req, res) {
-        // Compatibility for /api/companies (used by search etc)
         const q = req.query.q;
         let stmt;
         if (q) {
@@ -16,20 +15,9 @@ class LegacyController {
     }
 
     static getCompanyData(req, res) {
-        // Compatibility for /data/:id (used by notification polling)
-        // Returns notifications, partnerships etc.
-        const id = req.params.id; // actually user_id in some contexts? or company id?
-        // Old game used "companyId" in sessionStorage which was usually related to user_id or company_id.
-        // Let's assume it matches company_table id if passed, otherwise tries user.
-
-        // Actually the old code: `const res = await fetch(/data/${companyId});`
-        // And `companyId` came from `sessionStorage` which was likely the user's primary company ID or User ID.
-        // Let's serve strict data.
-
+        const id = req.params.id;
         try {
-            // In new system, "companyId" in session might be mixed.
-            // We'll treat the param as user_id for notifications.
-            const userId = id; // simplistic
+            const userId = id;
 
             const partnerships = db.prepare(`
                 SELECT p.id, u.username as fromName, p.user_id_1 as fromId 
@@ -42,17 +30,41 @@ class LegacyController {
                 SELECT user_id_1, user_id_2 FROM partners WHERE (user_id_1 = ? OR user_id_2 = ?) AND status = 'active'
              `).all(userId, userId);
 
-            // Map to "partner IDs" (other user's active company ID? or just user ID)
-            // simplified: just return list of IDs
             const partnerIds = partners.map(p => p.user_id_1 === parseInt(userId) ? p.user_id_2 : p.user_id_1);
 
             res.json({
                 partnershipRequests: partnerships,
                 partners: partnerIds,
-                locked: false // assuming no lock logic implemented yet
+                locked: false
             });
         } catch (e) {
-            res.json({});
+            res.json({ partnershipRequests: [], partners: [], locked: false });
+        }
+    }
+
+    static async requestPartnership(req, res) {
+        const { targetCompanyId } = req.body;
+        const requesterId = req.session.userId;
+
+        try {
+            db.prepare('INSERT INTO partners (user_id_1, user_id_2, status) VALUES (?, ?, ?)')
+                .run(requesterId, targetCompanyId, 'pending');
+            res.json({ success: true });
+        } catch (e) {
+            res.status(400).json({ error: "Request already exists or error" });
+        }
+    }
+
+    static async acceptPartnership(req, res) {
+        const { requesterId } = req.body;
+        const acceptorId = req.session.userId;
+
+        try {
+            db.prepare("UPDATE partners SET status = 'active' WHERE user_id_1 = ? AND user_id_2 = ?")
+                .run(requesterId, acceptorId);
+            res.json({ success: true });
+        } catch (e) {
+            res.status(400).json({ error: "Failed to accept" });
         }
     }
 }
