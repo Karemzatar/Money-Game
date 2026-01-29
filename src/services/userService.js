@@ -11,8 +11,9 @@ class UserService {
     }
 
     static async create(username, passwordHash) {
-        const stmt = db.prepare('INSERT INTO users (username, password, last_active) VALUES (?, ?, ?)');
-        const result = stmt.run(username, passwordHash, Date.now());
+        const config = require('../config');
+        const stmt = db.prepare('INSERT INTO users (username, password, balance, last_active) VALUES (?, ?, ?, ?)');
+        const result = stmt.run(username, passwordHash, config.GAME.STARTING_BALANCE, Date.now());
 
         // Init daily rewards tracking
         db.prepare('INSERT INTO daily_rewards (user_id, streak, last_claimed_date) VALUES (?, 0, NULL)').run(result.lastInsertRowid);

@@ -30,6 +30,10 @@ app.use(express.static(path.join(__dirname, '../public')));
 // API Routes
 app.use('/api', apiRoutes);
 
+// Legacy Data Route
+const LegacyController = require('./controllers/legacyController');
+app.get('/data/:id', LegacyController.getCompanyData);
+
 // Fallback for SPA (if we go that route, otherwise serve pages directly)
 app.get('/', (req, res) => {
     if (req.session.userId) {

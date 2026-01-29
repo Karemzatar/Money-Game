@@ -79,9 +79,29 @@
         <i class="fas fa-building fa-lg"></i>
         <div style="font-size:10px; margin-top:5px;">Corp</div>
       </div>
+      <!-- Restored Features -->
+      <div class="nav-tab" onclick="window.location.href='lands.html'">
+        <i class="fas fa-map-marked-alt fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Lands</div>
+      </div>
+      <div class="nav-tab" onclick="window.location.href='shares.html'">
+        <i class="fas fa-chart-line fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Shares</div>
+      </div>
+      <div class="nav-tab" onclick="window.location.href='partners.html'">
+        <i class="fas fa-handshake fa-lg"></i>
+        <div style="font-size:10px; margin-top:5px;">Social</div>
+      </div>
+
       <div class="nav-tab" onclick="window.gameCore.switchTab('profile')">
         <i class="fas fa-user-astronaut fa-lg"></i>
         <div style="font-size:10px; margin-top:5px;">Pilot</div>
+      </div>
+
+      <!-- Conditional Admin Tab (will be hidden if not admin, but safe to show as route is protected) -->
+      <div class="nav-tab" onclick="window.location.href='admin.html'">
+        <i class="fas fa-shield-alt fa-lg" style="color: #ff4757;"></i>
+        <div style="font-size:10px; margin-top:5px;">Admin</div>
       </div>
     </div>
 
