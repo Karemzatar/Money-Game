@@ -1,6 +1,6 @@
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const db = require('./db');
+const db = require('../data/db');
 
 async function migrate() {
     if (!fs.existsSync('companies.json')) return;
