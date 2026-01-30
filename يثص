@@ -2,6 +2,7 @@ game
  ┣ public
  ┃ ┣ css
  ┃ ┃ ┣ game-theme.css
+ ┃ ┃ ┣ game-ui.css
  ┃ ┃ ┗ style.css
  ┃ ┣ images
  ┃ ┃ ┣ icon.svg
@@ -18,6 +19,10 @@ game
  ┃ ┃ ┣ onboarding.js
  ┃ ┃ ┣ pwa-setup.js
  ┃ ┃ ┗ tutorial.js
+ ┃ ┣ services
+ ┃ ┃ ┣ ads.service.js
+ ┃ ┃ ┣ auth.service.js
+ ┃ ┃ ┗ game.service.js
  ┃ ┣ videos
  ┃ ┣ admin.html
  ┃ ┣ amazon.html
@@ -38,26 +43,69 @@ game
  ┃ ┣ shop.html
  ┃ ┣ signup.html
  ┃ ┗ sw.js
- ┣ utils
- ┃ ┣ errorHandler.js
- ┃ ┗ gameLogic.js
+ ┣ scripts
+ ┃ ┣ check_db.js
+ ┃ ┣ gen_hash.js
+ ┃ ┗ migrate_data.js
+ ┣ src
+ ┃ ┣ config
+ ┃ ┃ ┣ env.js
+ ┃ ┃ ┣ game.config.js
+ ┃ ┃ ┗ index.js
+ ┃ ┣ constants
+ ┃ ┃ ┣ errors.js
+ ┃ ┃ ┗ events.js
+ ┃ ┣ controllers
+ ┃ ┃ ┣ adminController.js
+ ┃ ┃ ┣ ads.controller.js
+ ┃ ┃ ┣ authController.js
+ ┃ ┃ ┣ company.controller.js
+ ┃ ┃ ┣ gameController.js
+ ┃ ┃ ┣ legacyController.js
+ ┃ ┃ ┣ marketController.js
+ ┃ ┃ ┣ rewards.controller.js
+ ┃ ┃ ┗ tutorial.controller.js
+ ┃ ┣ db
+ ┃ ┃ ┣ index.js
+ ┃ ┃ ┣ migrate.js
+ ┃ ┃ ┗ seeds.js
+ ┃ ┣ middlewares
+ ┃ ┃ ┣ auth.js
+ ┃ ┃ ┣ auth.middleware.js
+ ┃ ┃ ┣ error.middleware.js
+ ┃ ┃ ┣ rateLimit.middleware.js
+ ┃ ┃ ┗ validate.middleware.js
+ ┃ ┣ routes
+ ┃ ┃ ┗ api.js
+ ┃ ┣ services
+ ┃ ┃ ┣ ads.service.js
+ ┃ ┃ ┣ auth.service.js
+ ┃ ┃ ┣ company.service.js
+ ┃ ┃ ┣ gameService.js
+ ┃ ┃ ┣ legacy.service.js
+ ┃ ┃ ┣ rewards.service.js
+ ┃ ┃ ┣ tutorial.service.js
+ ┃ ┃ ┗ userService.js
+ ┃ ┣ utils
+ ┃ ┃ ┣ crypto.js
+ ┃ ┃ ┣ helpers.js
+ ┃ ┃ ┗ logger.js
+ ┃ ┣ app.js
+ ┃ ┗ server.js
+ ┣ tests
+ ┃ ┣ auth.test.js
+ ┃ ┣ economy.test.js
+ ┃ ┗ game.test.js
  ┣ .gitignore
- ┣ check_db.js
- ┣ companies.json
  ┣ config.json
- ┣ db.js
  ┣ DEPLOYMENT_FIX.md
  ┣ game.db
- ┣ gen_hash.js
  ┣ google2f1aa96a19c63fad (1).html
  ┣ index.js
  ┣ logs.json
  ┣ migrate.js
- ┣ migrate_data.js
  ┣ package-lock.json
  ┣ package.json
- ┣ paybal-data.json
- ┣ server.js
- ┣ server.log
  ┣ sitemap.xml
- ┗ update.md
+ ┣ update.md
+ ┗ يثص
