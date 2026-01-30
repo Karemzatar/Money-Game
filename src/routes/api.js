@@ -20,7 +20,7 @@ router.post('/admin/lock', auth, AdminController.toggleLock);
 
 // Legacy Compatibility
 const LegacyController = require('../controllers/legacyController.js');
-router.get('/companies', LegacyController.getCompaniesList);
+// router.get('/companies', LegacyController.getCompaniesList); // Use modern one instead
 router.post('/partners/request', auth, LegacyController.requestPartnership);
 router.post('/partners/accept', auth, LegacyController.acceptPartnership);
 // Note: /data/:id is root level in app.js, not here. We need to handle it or expose it here.
@@ -32,6 +32,7 @@ router.get('/game/profile', auth, GameController.getProfile);
 router.post('/game/click', auth, GameController.click);
 router.post('/game/upgrade', auth, GameController.upgrade);
 router.post('/game/company', auth, GameController.buyCompany);
+router.post('/game/claim-offline-earnings', auth, GameController.claimOfflineEarnings);
 router.get('/companies', GameController.searchCompanies);
 
 // Market

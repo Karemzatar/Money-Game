@@ -9,6 +9,8 @@ class GameController {
             const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
             const companies = db.prepare('SELECT * FROM companies WHERE user_id = ?').all(userId);
 
+            const offlineEarnings = GameService.getOfflineEarnings(userId);
+
             res.json({
                 user: {
                     username: user.username,
@@ -16,7 +18,8 @@ class GameController {
                     level: user.level,
                     msg: "Welcome back commander"
                 },
-                companies
+                companies,
+                offlineEarnings
             });
         } catch (err) {
             res.status(500).json({ error: err.message });
@@ -118,9 +121,23 @@ class GameController {
 
     static async searchCompanies(req, res) {
         const q = req.query.q;
-        if (!q) return res.json([]);
-        const results = db.prepare('SELECT id, username as company, balance, level FROM users WHERE username LIKE ? LIMIT 10').all(`%${q}%`);
+        let results;
+        if (q) {
+            results = db.prepare('SELECT id, username as company, balance, level FROM users WHERE username LIKE ? LIMIT 10').all(`%${q}%`);
+        } else {
+            results = db.prepare('SELECT id, username as company, balance, level FROM users ORDER BY balance DESC LIMIT 10').all();
+        }
         res.json(results);
+    }
+
+    static async claimOfflineEarnings(req, res) {
+        try {
+            const userId = req.session.userId;
+            const result = GameService.claimOfflineEarnings(userId);
+            res.json(result);
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
     }
 }
 

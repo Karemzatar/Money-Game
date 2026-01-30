@@ -120,6 +120,9 @@ const GameCore = {
             this.state.companies = data.companies || [];
             this.state.username = data.user.username;
 
+            // Legacy compatibility for partners/lands
+            sessionStorage.setItem('companyId', data.user.id);
+
             this.render();
         } catch (e) {
             console.error(e);

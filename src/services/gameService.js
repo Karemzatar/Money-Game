@@ -62,6 +62,7 @@ class GameService {
             const newBalance = user.balance - company.upgrade_cost;
             const newLevel = company.level + 1;
             const newIncome = company.income_per_click * 1.5;
+            const newPassive = (company.passive_income || 5) * 1.4;
             const newCost = company.upgrade_cost * config.GAME.UPGRADE_COST_FACTOR;
 
             // Update User
@@ -70,9 +71,9 @@ class GameService {
             // Update Company
             db.prepare(`
                 UPDATE companies 
-                SET level = ?, income_per_click = ?, upgrade_cost = ?
+                SET level = ?, income_per_click = ?, passive_income = ?, upgrade_cost = ?
                 WHERE id = ?
-            `).run(newLevel, newIncome, newCost, companyId);
+            `).run(newLevel, newIncome, newPassive, newCost, companyId);
 
             db.prepare('INSERT INTO transactions (user_id, type, amount, description) VALUES (?, ?, ?, ?)').run(
                 userId, 'UPGRADE', -company.upgrade_cost, `Upgraded ${company.name} to level ${newLevel}`
@@ -100,11 +101,52 @@ class GameService {
             db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(cost, userId);
 
             const result = db.prepare(`
-                INSERT INTO companies (user_id, name, income_per_click, upgrade_cost)
-                VALUES (?, ?, ?, ?)
-             `).run(userId, name, config.GAME.BASE_INCOME_CLICK * 2, 100);
+                INSERT INTO companies (user_id, name, income_per_click, passive_income, upgrade_cost)
+                VALUES (?, ?, ?, ?, ?)
+             `).run(userId, name, config.GAME.BASE_INCOME_CLICK * 2, 5, 100);
 
             return result.lastInsertRowid;
+        });
+        return tx();
+    }
+
+    static getOfflineEarnings(userId) {
+        const user = db.prepare('SELECT last_active FROM users WHERE id = ?').get(userId);
+        if (!user || !user.last_active) return { amount: 0, hours: 0 };
+
+        const now = Date.now();
+        const diffMs = now - user.last_active;
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        if (diffHours < 0.08) return { amount: 0, hours: 0 }; // Less than 5 mins
+
+        const cappedHours = Math.min(diffHours, config.GAME.OFFLINE_CAP_HOURS);
+
+        // Sum passive income
+        const companies = db.prepare('SELECT passive_income FROM companies WHERE user_id = ?').all(userId);
+        const totalPassive = companies.reduce((sum, c) => sum + (c.passive_income || 0), 0);
+
+        // Earnings = (Passive Income per sec) * seconds * efficiency
+        const earnings = totalPassive * (cappedHours * 3600) * config.GAME.OFFLINE_RATE_PERCENT;
+
+        return {
+            amount: parseFloat(earnings.toFixed(2)),
+            hours: parseFloat(cappedHours.toFixed(1))
+        };
+    }
+
+    static claimOfflineEarnings(userId) {
+        const tx = db.transaction(() => {
+            const earnings = this.getOfflineEarnings(userId);
+            if (earnings.amount <= 0) return { success: false, amount: 0 };
+
+            db.prepare('UPDATE users SET balance = balance + ?, last_active = ? WHERE id = ?')
+                .run(earnings.amount, Date.now(), userId);
+
+            db.prepare('INSERT INTO transactions (user_id, type, amount, description) VALUES (?, ?, ?, ?)')
+                .run(userId, 'OFFLINE_CLAIM', earnings.amount, `Collected ${earnings.amount} from ${earnings.hours}h away`);
+
+            return { success: true, amount: earnings.amount };
         });
         return tx();
     }

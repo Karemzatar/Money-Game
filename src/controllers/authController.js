@@ -21,9 +21,9 @@ class AuthController {
             // Actually, let's just insert a free starter company directly to avoid paying
             const db = require('../db/index.js');
             db.prepare(`
-                INSERT INTO companies (user_id, name, income_per_click, upgrade_cost) 
-                VALUES (?, ?, ?, ?)
-            `).run(userId, `${username}'s First Venture`, 1.5, 50);
+                INSERT INTO companies (user_id, name, income_per_click, passive_income, upgrade_cost) 
+                VALUES (?, ?, ?, ?, ?)
+            `).run(userId, `${username}'s First Venture`, 1.5, 5, 50);
 
             req.session.userId = userId;
             res.json({ success: true, userId });
