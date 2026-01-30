@@ -3,9 +3,9 @@ const fs = require('fs');
 const app = require('./app.js');
 
 // 🔹 تأكد وجود config قبل التشغيل
-const configPath = path.join(__dirname, 'config');
+const configPath = path.join(__dirname, 'config', 'index.js');
 if (!fs.existsSync(configPath)) {
-  console.error('❌ CONFIG FOLDER NOT FOUND:', configPath);
+  console.error('❌ CONFIG FILE NOT FOUND:', configPath);
   process.exit(1); // يوقف التطبيق إذا config غير موجود
 }
 

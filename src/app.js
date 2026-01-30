@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 
 // ✅ Load config robustly (use absolute path and fail loudly if missing)
-const configPath = path.join(__dirname, 'config');
+const configPath = path.join(__dirname, 'config', 'index.js');
 let config;
 try {
     config = require(configPath);
