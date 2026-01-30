@@ -3,8 +3,17 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 
-// ✅ مسار config الصحيح
-const config = require('./config');
+// ✅ Load config robustly (use absolute path and fail loudly if missing)
+const configPath = path.join(__dirname, 'config');
+let config;
+try {
+    config = require(configPath);
+} catch (err) {
+    console.error('Failed to load configuration from', configPath);
+    console.error(err && err.stack ? err.stack : err);
+    // Exit early so the server doesn't start in an invalid state
+    process.exit(1);
+}
 
 const apiRoutes = require('./routes/api');
 
