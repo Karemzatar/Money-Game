@@ -1,12 +1,34 @@
-require('dotenv').config();
+const env = require('./env');
+const gameConfig = require('./game.config');
+
+if (!env || typeof env !== 'object') {
+  throw new Error('❌ env.js must export an object');
+}
+
+if (!gameConfig || typeof gameConfig !== 'object') {
+  throw new Error('❌ game.config.js must export an object');
+}
 
 module.exports = {
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: process.env.PORT || 3000,
-  DATABASE_URL: process.env.DATABASE_URL || './data/game.db',
-  SESSION_SECRET: process.env.SESSION_SECRET || 'anti-gravity-core-secret-999',
-  DISCORD_TOKEN: process.env.DISCORD_TOKEN || '',
-  DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || '',
-  DISCORD_GUILD_ID: process.env.DISCORD_GUILD_ID || '',
-  DISCORD_ADMIN_ROLE_ID: process.env.DISCORD_ADMIN_ROLE_ID || '',
+  // flat access
+  ...env,
+
+  // grouped access
+  SERVER: {
+    PORT: env.PORT,
+    NODE_ENV: env.NODE_ENV,
+    SESSION_SECRET: env.SESSION_SECRET,
+    DATABASE_URL: env.DATABASE_URL,
+  },
+
+  DISCORD: {
+    TOKEN: env.DISCORD_TOKEN,
+    CLIENT_ID: env.DISCORD_CLIENT_ID,
+    GUILD_ID: env.DISCORD_GUILD_ID,
+    ADMIN_ROLE_ID: env.DISCORD_ADMIN_ROLE_ID,
+  },
+
+  GAME: gameConfig.GAME,
+  RATE_LIMIT: gameConfig.RATE_LIMIT,
+  VISA_TIERS: gameConfig.VISA_TIERS,
 };
