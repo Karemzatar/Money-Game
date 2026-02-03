@@ -3,9 +3,9 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 
-const config = require('./config/index.js');
-const apiRouter = require('./routes/api.js');
-const errorMiddleware = require('./middlewares/error.middleware.js');
+const config = require('./config');
+const apiRouter = require('./routes/api');
+const errorMiddleware = require('./middlewares/error.middleware');
 
 const app = express();
 
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api', apiRouter);
 
 // Legacy route compatibility
-const LegacyController = require('./controllers/legacyController.js');
+const LegacyController = require('./controllers/legacyController');
 app.get('/data/:id', LegacyController.getCompanyData);
 
 // Serve index.html for root
