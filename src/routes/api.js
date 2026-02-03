@@ -45,4 +45,21 @@ router.get('/market/shares', auth, MarketController.getShares);
 router.post('/transfer', auth, GameController.transferFunds);
 router.post('/login', AuthController.login); // Map root /login to AuthController.login for wallet compatibility
 
+// Tutorial
+const TutorialController = require('../controllers/tutorial.controller.js');
+router.get('/game/tutorial-status', auth, TutorialController.getTutorialProgress);
+router.post('/game/tutorial-progress', auth, TutorialController.updateTutorialProgress);
+router.post('/game/tutorial-complete', auth, TutorialController.completeTutorial);
+router.post('/game/tutorial-skip', auth, TutorialController.completeTutorial);
+
+// Rewards/Ads
+const RewardsController = require('../controllers/rewards.controller.js');
+router.post('/rewards/claim', auth, RewardsController.claimDailyReward);
+router.get('/rewards/status', auth, RewardsController.getRewardStatus);
+
+// Ads
+const AdsController = require('../controllers/ads.controller.js');
+router.get('/ads/status', auth, AdsController.getAdStatus);
+router.post('/ads/watch', auth, AdsController.watchAd);
+
 module.exports = router;
