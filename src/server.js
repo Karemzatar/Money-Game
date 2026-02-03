@@ -1,24 +1,15 @@
-const path = require('path');
-const fs = require('fs');
-const app = require('./app.js');
+'use strict';
 
-// 🔹 تأكد وجود config قبل التشغيل
-const configPath = path.join(__dirname, 'config', 'index.js');
-if (!fs.existsSync(configPath)) {
-  console.error('❌ CONFIG FILE NOT FOUND:', configPath);
-  process.exit(1); // يوقف التطبيق إذا config غير موجود
+const app = require('./app');
+
+// Railway يحدد البورت تلقائيًا
+const PORT = process.env.PORT;
+
+if (!PORT) {
+  console.error('❌ PORT not provided by Railway');
+  process.exit(1);
 }
 
-const config = require(configPath);
-
-// 🔹 بدء السيرفر
-app.listen(config.PORT, () => {
-  console.log(`
-🚀 ANTI-GRAVITY ENGINE ONLINE 🚀
-===============================
-MODE: ${config.ENV}
-PORT: ${config.PORT}
-DB  : SQLite (WAL Mode)
-===============================
-  `);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Money Game running on port ${PORT}`);
 });

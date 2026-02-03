@@ -97,8 +97,10 @@ game
  ┃ ┣ economy.test.js
  ┃ ┗ game.test.js
  ┣ .gitignore
+ ┣ complete-config-fix.js
+ ┣ config-index.js
  ┣ config.json
- ┣ DEPLOYMENT_FIX.md
+ ┣ fix-config.js
  ┣ game.db
  ┣ google2f1aa96a19c63fad (1).html
  ┣ index.js
@@ -108,4 +110,4 @@ game
  ┣ package.json
  ┣ sitemap.xml
  ┣ update.md
- ┗ يثص
+ 

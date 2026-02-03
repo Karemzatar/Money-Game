@@ -4,22 +4,17 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 
 // =====================
-// Load Config (SAFE)
+// Load Config (Railway-safe)
 // =====================
 let config;
 try {
-    // بما إن app.js داخل src
-    // و config داخل src/config
-    config = require('./config');
+    config = require('./config/index.js');
 } catch (err) {
-    console.error('❌ Failed to load config from src/config/index.js');
+    console.error('❌ Failed to load config from ./config/index.js');
     console.error(err);
     process.exit(1);
 }
 
-// =====================
-// Init App
-// =====================
 const app = express();
 
 // =====================
@@ -33,36 +28,28 @@ app.use(cookieParser());
 // Sessions
 // =====================
 app.use(session({
-    name: 'money-game.sid',
     secret: config.SESSION_SECRET || 'dev_secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: config.ENV === 'production',
+        secure: false, // Railway يعمل خلف proxy
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24h
+        maxAge: 24 * 60 * 60 * 1000
     }
 }));
 
 // =====================
-// Static Files
+// Static
 // =====================
 app.use(express.static(path.join(__dirname, '../public')));
 
 // =====================
 // Routes
 // =====================
-const apiRoutes = require('./routes/api');
-app.use('/api', apiRoutes);
+app.use('/api', require('./routes/api'));
 
 // =====================
-// Legacy Route
-// =====================
-const LegacyController = require('./controllers/legacyController');
-app.get('/data/:id', LegacyController.getCompanyData);
-
-// =====================
-// Main Route
+// Main
 // =====================
 app.get('/', (req, res) => {
     const file = req.session.userId ? 'home.html' : 'login.html';
@@ -70,13 +57,11 @@ app.get('/', (req, res) => {
 });
 
 // =====================
-// Global Error Handler
+// Errors
 // =====================
 app.use((err, req, res, next) => {
-    console.error('[SERVER ERROR]', err);
-    res.status(500).json({
-        error: 'Internal Server Error'
-    });
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
 });
 
 module.exports = app;
