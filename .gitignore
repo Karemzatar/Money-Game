@@ -1,5 +1,5 @@
 # Discord bot sensitive files
-index.js
+/index.js
 config.json
 
 # Node
