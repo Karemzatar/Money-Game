@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; background:#f4f6f8; padding:20px }
+    table { width:100%; border-collapse:collapse }
+    th,td { padding:10px; border-bottom:1px solid #ddd }
+    th { background:#eee }
+    button { padding:5px 10px; cursor:pointer }
+  </style>
+</head>
+<body>
+
+<h1>👮 Admin Dashboard</h1>
+
+<h2>Users</h2>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Balance</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="users"></tbody>
+</table>
+
+<h2>Security Logs</h2>
+<div id="logs"></div>
+
+<script>
+async function load() {
+  const res = await fetch('/api/admin/data', { credentials:'include' });
+  if (!res.ok) {
+    alert('Unauthorized');
+    location.href = '/login.html';
+    return;
+  }
+
+  const data = await res.json();
+
+  const tbody = document.getElementById('users');
+  tbody.innerHTML = '';
+
+  data.users.forEach(u => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.id}</td>
+      <td>${u.email}</td>
+      <td>
+        <select onchange="setRole(${u.id}, this.value)">
+          <option ${u.role==='user'?'selected':''}>user</option>
+          <option ${u.role==='mod'?'selected':''}>mod</option>
+          <option ${u.role==='admin'?'selected':''}>admin</option>
+        </select>
+      </td>
+      <td>${u.balance}</td>
+      <td>${u.locked ? '🔒 Locked' : 'Active'}</td>
+      <td>
+        <button onclick="lock(${u.id}, ${!u.locked})">
+          ${u.locked ? 'Unfreeze' : 'Freeze'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const logsDiv = document.getElementById('logs');
+  logsDiv.innerHTML = data.logs.map(l =>
+    `[${new Date(l.timestamp).toLocaleTimeString()}] ${l.action}`
+  ).join('<br>');
+}
+
+async function lock(id, locked) {
+  await fetch('/api/admin/lock', {
+    method:'POST',
+    credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ userId:id, locked })
+  });
+  load();
+}
+
+async function setRole(id, role) {
+  await fetch('/api/admin/role', {
+    method:'POST',
+    credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ userId:id, role })
+  });
+}
+
+load();
+</script>
+
+</body>
+</html>

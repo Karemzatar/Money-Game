@@ -150,6 +150,14 @@ class GameService {
         });
         return tx();
     }
+    static getVisaType(balance) {
+        if (balance >= 70000000) return 'visa-5'; // 70M
+        if (balance >= 50000000) return 'visa-4'; // 50M
+        if (balance >= 10000000) return 'visa-3'; // 10M
+        if (balance >= 1000000) return 'visa-2';  // 1M
+        if (balance >= 100000) return 'visa-1';   // 100k
+        return 'standard';
+    }
 }
 
 module.exports = GameService;

@@ -1,0 +1,46 @@
+# 1️⃣ اتصل بالـ VPS
+ssh root@YOUR_VPS_IP
+
+# 2️⃣ تحديث النظام
+sudo apt update && sudo apt upgrade -y
+
+# 3️⃣ تثبيت Node.js و Git و Nginx
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs git nginx unzip
+
+# 4️⃣ انتقل للمجلد الرئيسي للمواقع وارفع المشروع من GitHub
+cd /var/www
+sudo git clone GITHUB_REPO money-game
+cd money-game
+npm install
+
+# 5️⃣ تثبيت PM2 لتشغيل المشروع دائمًا
+sudo npm install -g pm2
+sudo pm2 start src/server.js --name money-game
+sudo pm2 save
+sudo pm2 startup
+
+# 6️⃣ إعداد Nginx للدومين
+sudo bash -c "cat > /etc/nginx/sites-available/money-game <<EOL
+server {
+    listen 80;
+    server_name YOUR_DOMAIN www.YOUR_DOMAIN;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}
+EOL"
+
+sudo ln -s /etc/nginx/sites-available/money-game /etc/nginx/sites-enabled
+sudo nginx -t
+sudo systemctl restart nginx
+
+# 7️⃣ تفعيل HTTPS باستخدام Let's Encrypt
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d YOUR_DOMAIN -d www.YOUR_DOMAIN --non-interactive --agree-tos -m your-email@example.com

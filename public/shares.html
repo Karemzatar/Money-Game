@@ -26,19 +26,51 @@
   </nav>
 
   <div class="container">
-    <div class="login-box">
+    <div class="login-box" style="width: 100%; max-width: 800px;">
       <div class="login-header">
-        <h1>📈 Shares</h1>
-        <p>Coming Soon...</p>
+        <h1>📈 Stock Market</h1>
+        <p>Trade shares of top companies.</p>
       </div>
-      <a href="home.html" class="btn btn-primary">Back to Home</a>
+
+      <div id="sharesList" style="margin-top: 20px;">
+        <p>Loading market data...</p>
+      </div>
+
+      <a href="home.html" class="btn btn-secondary" style="margin-top:20px;">Back to Dashboard</a>
     </div>
   </div>
 
   <script>
+    async function loadShares() {
+      try {
+        const res = await fetch('/api/game/shares');
+        const shares = await res.json();
+        const container = document.getElementById('sharesList');
+        container.innerHTML = '';
+
+        if (shares.length === 0) {
+          container.innerHTML = '<p>No shares owned yet. Search specifically for companies to invest (Feature Coming Soon).</p>';
+          // In a full implementation, we would list All Companies and allow buying their stock.
+          // For now, let's just show owned shares.
+        } else {
+          shares.forEach(s => {
+            // Render share item
+            const div = document.createElement('div');
+            div.style.background = '#222';
+            div.style.padding = '10px';
+            div.style.margin = '5px 0';
+            div.style.borderRadius = '5px';
+            div.style.color = 'white';
+            div.innerHTML = `<strong>${s.symbol}</strong>: ${s.amount} shares`;
+            container.appendChild(div);
+          });
+        }
+      } catch (e) { console.error(e); }
+    }
+    document.addEventListener('DOMContentLoaded', loadShares);
+
     function logout() {
-      sessionStorage.removeItem("companyId");
-      window.location.href = "/";
+      fetch('/api/auth/logout', { method: 'POST' }).then(() => window.location.href = '/');
     }
   </script>
   <script src="/js/pwa-setup.js"></script>

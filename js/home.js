@@ -107,6 +107,16 @@ function logout() {
   sessionStorage.removeItem("companyId");
   window.location.href = "/";
 }
+(async () => {
+  const res = await fetch('/api/auth/check', {
+    credentials: 'include'
+  });
+
+  if (!res.ok) {
+    window.location.href = '/login.html';
+  }
+})();
+
 
 loadData();
 setInterval(loadData, 30000); // Refresh every 30 seconds

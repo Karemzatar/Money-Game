@@ -10,13 +10,16 @@ class GameController {
             const companies = db.prepare('SELECT * FROM companies WHERE user_id = ?').all(userId);
 
             const offlineEarnings = GameService.getOfflineEarnings(userId);
+            const visaType = GameService.getVisaType(user.balance);
 
             res.json({
                 user: {
+                    id: user.id,
                     username: user.username,
                     balance: user.balance,
                     level: user.level,
-                    msg: "Welcome back commander"
+                    msg: "Welcome back commander",
+                    visaType
                 },
                 companies,
                 offlineEarnings
@@ -137,6 +140,32 @@ class GameController {
             res.json(result);
         } catch (err) {
             res.status(400).json({ error: err.message });
+        }
+    }
+
+    static async verifyPayment(req, res) {
+        try {
+            const { amount, pin } = req.body;
+            const userId = req.session.userId;
+
+            // Simulation: PIN must be 1234
+            if (pin !== '1234') {
+                return res.status(400).json({ error: 'Invalid PIN' });
+            }
+
+            const paymentAmount = parseFloat(amount);
+            if (!paymentAmount || paymentAmount <= 0) return res.status(400).json({ error: "Invalid amount" });
+
+            const db = require('../db/index.js');
+            db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(paymentAmount, userId);
+
+            db.prepare('INSERT INTO transactions (user_id, type, amount, description) VALUES (?, ?, ?, ?)').run(
+                userId, 'PAYPAL_DEPOSIT', paymentAmount, 'PayPal Deposit Verified'
+            );
+
+            res.json({ success: true, message: 'Payment verified and funds added' });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
     }
 }

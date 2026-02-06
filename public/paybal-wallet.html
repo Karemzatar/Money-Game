@@ -33,8 +33,8 @@
 
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
-          <label>Company/Card Number</label>
-          <input id="loginInput" type="text" placeholder="Enter ID" required>
+          <label>Wallet Access</label>
+          <input id="loginInput" type="text" value="Authorized User" readonly style="color: #666; background: #eee;">
         </div>
         <div class="form-group">
           <label>Security PIN</label>
@@ -57,6 +57,10 @@
             </div>
             <div class="card-brand">VISA</div>
           </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 15px;">
+          <button class="btn btn-primary" onclick="depositFunds()">➕ Deposit Funds</button>
         </div>
 
         <div class="card-info">
@@ -97,38 +101,52 @@
 
   <!-- JavaScript logic embedded for simplicity/consistency with previous -->
   <script>
-    let currentUser = null;
-    let pendingTransfer = null;
 
-    // Auto-fill login if coming from home
-    const cId = sessionStorage.getItem("companyId");
-    if (cId) {
-      // We can't auto-login without PIN, but we can pre-fill
-      // Actually, for security, maybe just force fresh login here as requested?
-      // "make if someone login to her commpnay send hem to home not wallet" -> handled in login.js
+    let userData = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await fetchProfile();
+    });
+
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/game/profile');
+        if (res.status === 401) {
+          window.location.href = 'login.html';
+          return;
+        }
+        const data = await res.json();
+        userData = data.user;
+
+        // Auto-show login section if not "unlocked" yet
+        // For this session, we require PIN once to "Unlock" wallet?
+        // Or just require PIN per transaction.
+        // User requirement: "Each transaction requires a PIN".
+        // So we can show Dashboard immediately but mask critical actions?
+        // Or stick to the "Unlock Wallet" UI first.
+
+        // Let's keep the "Unlock Wallet" UI for "Roleplay" feeling.
+        // Pin is 1234.
+
+      } catch (e) {
+        console.error(e);
+      }
     }
 
+    // "Login" here means "Unlock Wallet" with PIN
     async function handleLogin(event) {
       event.preventDefault();
-      const loginInput = document.getElementById('loginInput').value.trim();
+      // const loginInput = document.getElementById('loginInput').value.trim(); // Not needed if we use session user
       const pinInput = document.getElementById('pinInput').value.trim();
       const err = document.getElementById('errorMessage');
       err.innerText = '';
 
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ loginId: loginInput, pin: pinInput })
-        });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-
-        currentUser = data;
-        showWallet();
-      } catch (e) {
-        err.innerText = e.message;
+      if (pinInput !== '1234') {
+        err.innerText = 'Invalid Security PIN';
+        return;
       }
+
+      showWallet();
     }
 
     function showWallet() {
@@ -138,21 +156,18 @@
     }
 
     function updateDisplay() {
-      if (!currentUser) return;
-      document.getElementById('displayCardNumber').innerText = currentUser.cardNumber.replace(/(\d{4})(?=\d)/g, '$1 ');
-      document.getElementById('displayCompanyName').innerText = currentUser.company;
-      document.getElementById('displayManagerName').innerText = currentUser.manager;
-      document.getElementById('displayBalance').innerText = '$' + Number(currentUser.balance).toLocaleString("en-US", { minimumFractionDigits: 2 });
-      document.getElementById('healthScoreDisplay').innerText = currentUser.healthScore;
+      if (!userData) return;
+      document.getElementById('displayCardNumber').innerText = "**** **** **** " + userData.id.toString().padStart(4, '0');
+      document.getElementById('displayCompanyName').innerText = userData.username;
+      document.getElementById('displayManagerName').innerText = userData.username;
+      document.getElementById('displayBalance').innerText = '$' + Number(userData.balance).toLocaleString("en-US", { minimumFractionDigits: 2 });
     }
 
     function handleLogout() {
-      currentUser = null;
-      document.getElementById('walletSection').style.display = 'none';
-      document.getElementById('loginSection').style.display = 'block';
-      document.getElementById('pinInput').value = '';
+      window.location.href = 'home.html';
     }
 
+    // Transfer
     function preHookTransfer(e) {
       e.preventDefault();
       const recipient = document.getElementById('recipientInput').value;
@@ -165,11 +180,10 @@
 
     async function executeTransfer(recipient, amount) {
       try {
-        const res = await fetch('/api/transfer', {
+        const res = await fetch('/api/game/transfer-funds', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            senderId: currentUser.id,
             recipientId: recipient,
             amount: amount
           })
@@ -177,8 +191,10 @@
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        currentUser.balance = data.newBalance;
+        // Update local balance
+        userData.balance = data.newBalance;
         updateDisplay();
+
         document.getElementById('successMessage').innerText = "Transfer Successful!";
         setTimeout(() => document.getElementById('successMessage').innerText = '', 3000);
         document.getElementById('transferForm').reset();
@@ -187,6 +203,31 @@
         setTimeout(() => document.getElementById('errorMessageDash').innerText = '', 3000);
       }
     }
+
+    // Deposit (PayPal)
+    async function depositFunds() {
+      const amount = prompt("Enter amount to deposit (PayPal Simulation):");
+      if (!amount) return;
+      const pin = prompt("Enter PIN to confirm:");
+
+      try {
+        const res = await fetch('/api/game/paypal/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, pin })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(data.message);
+          fetchProfile().then(updateDisplay); // refresh
+        } else {
+          alert(data.error);
+        }
+      } catch (e) {
+        alert("Error: " + e.message);
+      }
+    }
+
   </script>
   <script src="/js/pwa-setup.js"></script>
 </body>

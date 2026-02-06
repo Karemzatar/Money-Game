@@ -1,61 +1,36 @@
+const db = require('../db');
 
-const db = require('../db/index.js');
-const UserService = require('../services/userService.js');
+// جلب بيانات الأدمن
+exports.getData = (req, res) => {
+  try {
+    const companies = db.prepare(`
+      SELECT id, username AS manager, balance, level
+      FROM users
+    `).all();
 
-class AdminController {
-    static async getDashboardData(req, res) {
-        // Security check
-        const user = db.prepare('SELECT username, role FROM users WHERE id = ?').get(req.session.userId);
-        if (!user || user.role !== 'admin') {
-            return res.status(403).json({ error: "Access Denied" });
-        }
+    res.json({
+      companies,
+      logs: []
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to load admin data' });
+  }
+};
 
-        try {
-            // Map companies and users for the legacy dashboard table
-            const companies = db.prepare(`
-                SELECT 
-                    c.id, 
-                    c.name as company, 
-                    u.username as manager, 
-                    u.balance, 
-                    c.level, 
-                    (u.total_earned / 10.0) as sharePrice, 
-                    u.last_active,
-                    '****' as pin,
-                    '0000' as cardNumber,
-                    0 as healthScore,
-                    0 as locked
-                FROM companies c
-                JOIN users u ON c.user_id = u.id
-            `).all();
+// قفل / فتح حساب
+exports.toggleLock = (req, res) => {
+  const { targetId, locked } = req.body;
 
-            const logs = db.prepare('SELECT id, user_id as userId, type as action, created_at as timestamp FROM transactions ORDER BY id DESC LIMIT 50').all();
+  try {
+    db.prepare(`
+      UPDATE users SET locked = ?
+      WHERE id = ?
+    `).run(locked ? 1 : 0, targetId);
 
-            res.json({
-                companies,
-                logs
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Admin Data Error" });
-        }
-    }
-
-    static async getDashboardStats(req, res) {
-        const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.session.userId);
-        if (!user || user.role !== 'admin') return res.status(403).send('Forbidden');
-
-        const stats = {
-            users: db.prepare('SELECT COUNT(*) as c FROM users').get().c,
-            volume: db.prepare('SELECT SUM(amount) as s FROM transactions').get().s || 0,
-            topUsers: db.prepare('SELECT username, balance FROM users ORDER BY balance DESC LIMIT 10').all()
-        };
-        res.json(stats);
-    }
-
-    static async toggleLock(req, res) {
-        res.json({ success: true });
-    }
-}
-
-module.exports = AdminController;
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};

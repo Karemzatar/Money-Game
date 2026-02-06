@@ -119,6 +119,7 @@ const GameCore = {
             this.state.level = data.user.level;
             this.state.companies = data.companies || [];
             this.state.username = data.user.username;
+            this.state.visaType = data.user.visaType;
 
             // Legacy compatibility for partners/lands
             sessionStorage.setItem('companyId', data.user.id);
@@ -231,7 +232,23 @@ const GameCore = {
             <p>Username: <strong style="color:white">${this.state.username}</strong></p>
             <p>Total Assets: <strong style="color:white">$${this.state.balance.toFixed(2)}</strong></p>
             <p>Empire Size: <strong style="color:white">${this.state.companies.length} Companies</strong></p>
+            <div class="visa-card-display ${this.state.visaType || 'standard'}" style="margin-top:20px; text-align:center;">
+                <div style="background: linear-gradient(45deg, #111, #333); padding: 15px; border-radius: 10px; border: 1px solid #555; display:inline-block;">
+                    <i class="fab fa-cc-visa fa-2x" style="color:white;"></i>
+                    <p style="color:gold; margin-top:5px;">${(this.state.visaType || 'STANDARD').toUpperCase()}</p>
+                </div>
+            </div>
+            <button class="btn btn-secondary" style="margin-top:20px;" onclick="window.gameCore.openTutorial()">Tutorial</button>
         `;
+    },
+
+    openTutorial: function () {
+        // Simple alert for now or trigger the tutorial system
+        if (window.tutorialSystem) {
+            window.tutorialSystem.start();
+        } else {
+            alert("Tutorial loading...");
+        }
     },
 
     showToast: function (msg, type = 'success') {

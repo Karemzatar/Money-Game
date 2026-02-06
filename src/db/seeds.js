@@ -41,6 +41,23 @@ function seed() {
       1
     );
 
+    // Check/Seed Lands
+    const landsCount = db.prepare('SELECT COUNT(*) as count FROM lands').get().count;
+    if (landsCount === 0) {
+      const lands = [
+        { name: 'Small Apartment', type: 'Residential', value: 5000 },
+        { name: 'Downtown Condo', type: 'Residential', value: 25000 },
+        { name: 'Tech Office', type: 'Commercial', value: 100000 },
+        { name: 'Server Farm', type: 'Industrial', value: 500000 },
+        { name: 'Skyscraper', type: 'Commercial', value: 2500000 },
+        { name: 'Space Station', type: 'Special', value: 50000000 }
+      ];
+
+      const insert = db.prepare('INSERT INTO lands (user_id, name, type, value) VALUES (0, ?, ?, ?)'); // 0 for system owned
+      lands.forEach(l => insert.run(l.name, l.type, l.value));
+      console.log('✓ Lands seeded');
+    }
+
     console.log('✓ Database seeded successfully');
   } catch (error) {
     console.error('✗ Seeding failed:', error.message);

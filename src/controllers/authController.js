@@ -1,66 +1,54 @@
-
 const bcrypt = require('bcryptjs');
-const UserService = require('../services/userService.js');
-const GameService = require('../services/gameService.js');
+const db = require('../db');
 
-class AuthController {
-    static async register(req, res) {
-        try {
-            const { username, password } = req.body;
-            if (!username || !password) return res.status(400).json({ error: "Missing fields" });
-            if (password.length < 6) return res.status(400).json({ error: "Password too short" });
+exports.login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const AuthService = require('../services/auth.service');
+    const user = await AuthService.authenticateUser(username, password);
 
-            const existing = await UserService.findByUsername(username);
-            if (existing) return res.status(400).json({ error: "Username taken" });
+    if (user) {
+      req.session.userId = user.id;
+      req.session.role = user.role;
+      res.json({ success: true, redirect: '/home.html' });
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const userId = await UserService.create(username, hashedPassword);
+exports.register = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const AuthService = require('../services/auth.service');
 
-            // Create initial company as bonus
-            await GameService.createCompany(userId, `${username}'s Startup`, true); // Free logic needs bypass handling or simple insert
-            // Actually, let's just insert a free starter company directly to avoid paying
-            const db = require('../db/index.js');
-            db.prepare(`
-                INSERT INTO companies (user_id, name, income_per_click, passive_income, upgrade_cost) 
-                VALUES (?, ?, ?, ?, ?)
-            `).run(userId, `${username}'s First Venture`, 1.5, 5, 50);
-
-            req.session.userId = userId;
-            res.json({ success: true, userId });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Registration failed" });
-        }
+    // Simple validation
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
     }
 
-    static async login(req, res) {
-        try {
-            const { username, password } = req.body;
-            const user = await UserService.findByUsername(username);
-
-            if (!user || !(await bcrypt.compare(password, user.password))) {
-                return res.status(401).json({ error: "Invalid credentials" });
-            }
-
-            req.session.userId = user.id;
-            UserService.updateActivity(user.id);
-            res.json({ success: true });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: "Login failed" });
-        }
+    try {
+      await AuthService.registerUser(username, password);
+      // Auto login after register
+      const user = await AuthService.authenticateUser(username, password);
+      req.session.userId = user.id;
+      req.session.role = user.role;
+      res.json({ success: true, redirect: '/home.html' });
+    } catch (e) {
+      if (e.message.includes('UNIQUE constraint failed')) {
+        return res.status(400).json({ error: "Username already taken" });
+      }
+      throw e;
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    static logout(req, res) {
-        req.session.destroy();
-        res.json({ success: true });
-    }
-
-    static async me(req, res) {
-        if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
-        const user = await UserService.findById(req.session.userId);
-        res.json(user);
-    }
-}
-
-module.exports = AuthController;
+exports.logout = (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true });
+  });
+};

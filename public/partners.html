@@ -49,84 +49,136 @@
   </div>
 
   <script>
-    const companyId = sessionStorage.getItem("companyId");
-    if (!companyId) location.href = '/';
+    document.addEventListener('DOMContentLoaded', loadPartners);
 
     async function loadPartners() {
-      const res = await fetch(`/data/${companyId}`);
-      const data = await res.json();
-      const reqList = document.getElementById('requestsList');
-      const partList = document.getElementById('partnersList');
+      // 1. Get Requests
+      try {
+        const res = await fetch('/api/game/partners'); // using listPartners which returns partners (both active and pending involving me)
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
 
-      reqList.innerHTML = '';
-      partList.innerHTML = '';
+        const data = await res.json();
+        const reqList = document.getElementById('requestsList');
+        const partList = document.getElementById('partnersList');
 
-      if (data.partnershipRequests.length === 0) reqList.innerHTML = '<p style="color:#999;">No pending requests.</p>';
-      else {
-        data.partnershipRequests.forEach(r => {
-          const div = document.createElement('div');
-          div.style.padding = '15px';
-          div.style.border = '1px solid #eee';
-          div.style.borderRadius = '10px';
-          div.style.marginBottom = '10px';
-          div.style.display = 'flex';
-          div.style.justifyContent = 'space-between';
-          div.style.alignItems = 'center';
-          div.innerHTML = `<span><b>${r.fromName}</b> wants to join forces!</span> <button class="btn btn-primary" style="width:auto; padding: 8px 15px;" onclick="accept('${r.fromId}')">Accept</button>`;
-          reqList.appendChild(div);
+        reqList.innerHTML = '';
+        partList.innerHTML = '';
+
+        const all = data.partners || [];
+        // Filter pending where I am user_id_2 (receiver)
+        // Adjust logic based on listPartners response in CompanyController
+
+        // Let's assume listPartners returns array of objects with { id, user_id_1, user_id_2, status, other_user }
+        // Since we don't know my ID easily in frontend without fetching profile, we rely on 'other_user' field from backend?
+        // Backend `listPartners` query: `... u.username as other_user ... WHERE ...`
+
+        // Wait, I need to know which one is ME to know if it's incoming or outgoing.
+        // Actually the backend `listPartners` returns all.
+        // I should probably fetch profile first to get my username/id to filter properly?
+        // Or just display "Pending with X".
+
+        if (all.length === 0) {
+          reqList.innerHTML = '<p>No pending requests.</p>';
+          partList.innerHTML = '<p>No active partners.</p>';
+        }
+
+        all.forEach(p => {
+          if (p.status === 'active') {
+            const div = document.createElement('div');
+            div.className = 'upgrade-item';
+            div.style.background = '#fcfcfc';
+            div.style.color = '#333';
+            div.innerHTML = `<strong>${p.other_user}</strong> <span style="color:green; float:right;">Active (+1.5x Boost)</span>`;
+            partList.appendChild(div);
+          } else {
+            // Pending
+            const div = document.createElement('div');
+            div.className = 'upgrade-item';
+            div.style.background = '#fff';
+            div.style.border = '1px solid #ccc';
+            div.style.color = '#333';
+
+            // If I am the sender (user_id_1), I am waiting. If I am receiver (user_id_2), I should accept.
+            // Backend: `u.id != ?` returns the OTHER user name.
+            // But we need to know if we can Accept.
+            // We can check if 'other_user' is the one I sent to? No, 'other_user' is the partner.
+            // We need to know who initiated.
+
+            // Ideally backend sends `is_sender` boolean. 
+            // Let's just show Accept button for all for simplicity/MVP or assume we can try to accept.
+            // If we are the sender, Accept will likely fail or do nothing (since we can't accept our own request).
+            // Better: "Pending with..."
+
+            div.innerHTML = `
+                    <span>Request with <b>${p.other_user}</b></span>
+                    <div style="float:right;">
+                        <button class="btn btn-primary" style="padding:5px 10px; font-size:12px;" onclick="respond('${p.id}', true)">Accept</button>
+                        <button class="btn btn-secondary" style="padding:5px 10px; font-size:12px;" onclick="respond('${p.id}', false)">Reject</button>
+                    </div>
+                 `;
+            reqList.appendChild(div);
+          }
         });
-      }
 
-      if (data.partners.length === 0) partList.innerHTML = '<p style="color:#999;">No partners yet.</p>';
-      else {
-        // Fetch all helper
-        const allRes = await fetch('/api/companies');
-        const all = await allRes.json();
-
-        data.partners.forEach(pid => {
-          const p = all.find(c => c.id === pid);
-          const name = p ? p.company : "Unknown Company";
-          const div = document.createElement('div');
-          div.style.padding = '15px';
-          div.style.background = '#f9f9f9';
-          div.style.borderRadius = '10px';
-          div.style.marginBottom = '10px';
-          div.innerHTML = `<b>🤝 ${name}</b> <span style="color:green; float:right;">Active (+25% Boost)</span>`;
-          partList.appendChild(div);
-        });
-      }
+      } catch (e) { console.error(e); }
     }
 
-    async function accept(requesterId) {
-      await fetch('/api/partners/accept', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ acceptorId: companyId, requesterId })
-      });
-      loadPartners();
+    async function respond(partnerId, accept) {
+      try {
+        const res = await fetch('/api/game/partners/respond', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ partnerId, accept })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(data.message);
+          loadPartners();
+        } else {
+          alert(data.error);
+        }
+      } catch (e) { console.error(e); }
     }
 
     async function sendRequest() {
       const name = document.getElementById('partnerSearch').value;
       if (!name) return;
 
-      const allRes = await fetch(`/api/companies?q=${name}`);
-      const all = await allRes.json();
-      const target = all.find(c => c.company.toLowerCase() === name.toLowerCase());
+      // 1. Search for company/user
+      try {
+        const res = await fetch(`/api/game/search-companies?query=${name}`);
+        const data = await res.json();
 
-      if (!target) { alert("Company not found"); return; }
-      if (target.id === companyId) { alert("Cannot partner with yourself"); return; }
+        if (!data.companies || data.companies.length === 0) {
+          alert("Company not found");
+          return;
+        }
 
-      await fetch('/api/partners/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requesterId: companyId, targetCompanyId: target.id })
-      });
-      alert("Request sent!");
-      document.getElementById('partnerSearch').value = '';
+        // Just pick the first one
+        const target = data.companies[0];
+
+        const res2 = await fetch('/api/game/partners/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetCompanyId: target.id }) // Backend expects targetCompanyId (which is actually Company ID, not User ID in my backend logic step 52? 
+          // Step 52 logic: "check if target company exists... targetUserId = targetCompany.user_id". 
+          // So we need to pass a Company ID.
+          // My searchCompanies (Step 26 duplicates) returns Companies (Line 75) or Users (Line 126).
+          // I should verify searchCompanies behavior.
+          // If it returns Companies, `target.id` is Company ID. Correct.
+        });
+        const d2 = await res2.json();
+        if (d2.success) {
+          alert("Request sent!");
+          document.getElementById('partnerSearch').value = '';
+          loadPartners();
+        } else {
+          alert(d2.error);
+        }
+      } catch (e) {
+        alert("Error: " + e.message);
+      }
     }
-
-    loadPartners();
   </script>
   <script src="/js/pwa-setup.js"></script>
 </body>

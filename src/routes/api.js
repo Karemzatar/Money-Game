@@ -1,65 +1,56 @@
-
 const express = require('express');
 const router = express.Router();
-const AuthController = require('../controllers/authController.js');
-const GameController = require('../controllers/gameController.js');
 
-const auth = require('../middlewares/auth.js');
+const authController = require('../controllers/authController');
+const adminController = require('../controllers/adminController');
+const gameController = require('../controllers/gameController');
+const companyController = require('../controllers/company.controller'); // Added
+const marketController = require('../controllers/marketController');   // Added
+const adsController = require('../controllers/ads.controller');
+const rewardsController = require('../controllers/rewards.controller');
+const authMiddleware = require('../middlewares/auth.middleware');
 
-// Auth
-router.post('/auth/signup', AuthController.register);
-router.post('/auth/login', AuthController.login);
-router.post('/auth/logout', AuthController.logout);
-router.get('/auth/me', AuthController.me);
+// AUTH
+router.post('/auth/login', authController.login);
+router.post('/auth/register', authController.register); // Added
+router.post('/auth/logout', authController.logout);
 
-// Admin
-const AdminController = require('../controllers/adminController.js');
-router.get('/admin/data', auth, AdminController.getDashboardData);
-router.get('/admin/dashboard', auth, AdminController.getDashboardStats);
-router.post('/admin/lock', auth, AdminController.toggleLock);
+// ADMIN
+router.get('/admin/data', adminController.getData);
+router.post('/admin/lock', adminController.toggleLock);
 
-// Legacy Compatibility
-const LegacyController = require('../controllers/legacyController.js');
-// router.get('/companies', LegacyController.getCompaniesList); // Use modern one instead
-router.post('/partners/request', auth, LegacyController.requestPartnership);
-router.post('/partners/accept', auth, LegacyController.acceptPartnership);
-// Note: /data/:id is root level in app.js, not here. We need to handle it or expose it here.
-// Let's expose it here as /legacy/data/:id and redirect in app logic if needed. 
-// Actually, let's keep it clean. 
+// GAME - Protected routes
+router.use('/game', authMiddleware);
 
-// Game
-router.get('/game/profile', auth, GameController.getProfile);
-router.post('/game/click', auth, GameController.click);
-router.post('/game/upgrade', auth, GameController.upgrade);
-router.post('/game/company', auth, GameController.buyCompany);
-router.post('/game/claim-offline-earnings', auth, GameController.claimOfflineEarnings);
-router.get('/companies', GameController.searchCompanies);
+router.get('/game/profile', gameController.getProfile);
+router.post('/game/click', gameController.click);
+router.post('/game/upgrade', gameController.upgrade);
+router.post('/game/buy-company', gameController.buyCompany);
+router.get('/game/search-companies', gameController.searchCompanies); // Added back
+router.post('/game/transfer-funds', gameController.transferFunds);
+router.post('/game/claim-offline-earnings', gameController.claimOfflineEarnings);
+router.post('/game/paypal/verify', gameController.verifyPayment); // PayPal
 
-// Market
-const MarketController = require('../controllers/marketController.js');
-router.get('/market/lands', auth, MarketController.getLands);
-router.post('/market/buy-land', auth, MarketController.buyLand);
-router.get('/market/shares', auth, MarketController.getShares);
+// COMPANY & PARTNERSHIPS
+router.get('/game/companies', companyController.listCompanies);
+router.get('/game/companies/:companyId', companyController.getCompanyDetails);
+router.delete('/game/companies/:companyId', companyController.deleteCompany);
+router.post('/game/partners/request', companyController.requestPartnership);
+router.post('/game/partners/respond', companyController.respondPartnership);
+router.get('/game/partners', companyController.listPartners);
 
-// Wallet (Legacy compatibility)
-router.post('/transfer', auth, GameController.transferFunds);
-router.post('/login', AuthController.login); // Map root /login to AuthController.login for wallet compatibility
+// MARKET / REAL ESTATE / STOCKS
+router.get('/game/lands', marketController.getLands);
+router.post('/game/lands/buy', marketController.buyLand);
+router.get('/game/shares', marketController.getShares);
+// router.post('/game/shares/trade', marketController.tradeShares); // If implemented
 
-// Tutorial
-const TutorialController = require('../controllers/tutorial.controller.js');
-router.get('/game/tutorial-status', auth, TutorialController.getTutorialProgress);
-router.post('/game/tutorial-progress', auth, TutorialController.updateTutorialProgress);
-router.post('/game/tutorial-complete', auth, TutorialController.completeTutorial);
-router.post('/game/tutorial-skip', auth, TutorialController.completeTutorial);
+// ADS
+router.post('/game/ad-start', adsController.watchAd);
+router.get('/game/ad-status', adsController.getAdStatus);
 
-// Rewards/Ads
-const RewardsController = require('../controllers/rewards.controller.js');
-router.post('/rewards/claim', auth, RewardsController.claimDailyReward);
-router.get('/rewards/status', auth, RewardsController.getRewardStatus);
-
-// Ads
-const AdsController = require('../controllers/ads.controller.js');
-router.get('/ads/status', auth, AdsController.getAdStatus);
-router.post('/ads/watch', auth, AdsController.watchAd);
+// REWARDS
+router.post('/game/claim-daily-reward', rewardsController.claimDailyReward);
+router.get('/game/reward-status', rewardsController.getRewardStatus);
 
 module.exports = router;
